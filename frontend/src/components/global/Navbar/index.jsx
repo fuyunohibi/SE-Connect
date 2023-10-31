@@ -11,8 +11,10 @@ import {
   CloseIcon,
   AboutIcon,
 } from "@/assets/icons/Navbar";
+import { newsData } from "@/data";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import LoginModal from "@/components/global/Modals/LoginModal";
+import { NavLink } from "react-router-dom";
 
 const NavbarData = [
   {
@@ -70,7 +72,6 @@ const Navbar = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -122,10 +123,7 @@ const Navbar = () => {
       {isLaptop
         ? isMenuOpen && <LargeMenuModal />
         : isMenuOpen && <SmallMenuModal onClick={toggleMenu} />}
-      {isLoginModalOpen
-        ? <LoginModal onClose={toggleLoginModal}/>
-        : null
-      }
+      {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </nav>
   );
 };
@@ -144,14 +142,18 @@ const SmallMenuModal = ({ onClick }) => {
         "
         >
           {NavbarData.map((item) => (
-            <button
+            <NavLink
+              key={item.id}
               id={item.id}
-              className="flex flex-col justify-center items-center color-to-black rounded-full w-12 h-12"
+              to={item.link}
+              className="flex flex-col justify-center items-center  rounded-full w-12 h-12 "
             >
-              <p className="text-black font-medium text-center hover:underline">
+              <p
+                className={"text-black font-medium text-center hover:underline"}
+              >
                 {item.name}
               </p>
-            </button>
+            </NavLink>
           ))}
         </div>
         <button
@@ -176,15 +178,16 @@ const LargeMenuModal = ({ onClick }) => {
   return (
     <>
       <div className="fixed slide-from-top grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-24 px-3 py-3 bg-white h-64 shadow-md rounded-[2rem]">
-        <div className="relative flex flex-1 bg-black-background rounded-[1.75rem]">
-          <button className="absolute bottom-4 left-4 bg-button-black h-11 w-11 rounded-full p-4 hover:bg-button-hover"></button>
-        </div>
-        <div className="relative flex flex-1 bg-black-background rounded-[1.75rem]">
-          <button className="absolute bottom-4 left-4 bg-button-black h-11 w-11 rounded-full p-4 hover:bg-button-hover"></button>
-        </div>
-        <div className="relative flex flex-1 bg-black-background rounded-[1.75rem]">
-          <button className="absolute bottom-4 left-4 bg-button-black h-11 w-11 rounded-full p-4 hover:bg-button-hover"></button>
-        </div>
+        {newsData.map((news) => (
+          <div className="relative flex flex-1 bg-black-background rounded-[1.75rem] aspect-w-16 aspect-h-9">
+            <img
+              src={news.image}
+              alt="News Image"
+              className="object-cover w-full h-full rounded-[1.75rem]"
+            />
+            <button className="absolute bottom-4 left-4 bg-button-black h-11 w-11 rounded-full p-4 hover:bg-button-hover"></button>
+          </div>
+        ))}
       </div>
       <SmallMenuModal onClick={onClick} />
     </>

@@ -70,5 +70,41 @@
   }
 }
 
+/* ============ PENCIL STYLE ============ */
 
+.pencil-style {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, #ccc, #0d4628, #ccc);
+}
+
+.pencil-style-white {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, #ffffff, #e7f8ef, #fffbfb);
+}
+
+.pencil-style-left-to-right {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, #0d4628, #7f8c8d, #ccc);
+}
+
+.pencil-style-right-to-left {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to left, #0d4628, #7f8c8d, #ccc);
+}
+
+.white-pencil-style-left-to-right {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, #ffff, #cccccc, #928e8e);
+}
+
+.white-pencil-style-right-to-left {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to left, #ffff, #cccccc, #928e8e);
+}
 
