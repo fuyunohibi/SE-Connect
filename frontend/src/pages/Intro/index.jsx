@@ -8,7 +8,7 @@ const Intro = () => {
       <div className="flex flex-col justify-between items-start space-y-10
         md:flex-row md:space-y-0 md:space-x-10 
       ">
-        <p className="font-medium text-md">
+        <p className="font-medium text-sm">
           A New Way
           <br />
           A New World
