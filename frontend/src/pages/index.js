@@ -1,0 +1,5 @@
+export { default as HomePage    } from './Home'
+export { default as AboutPage   } from './About'
+export { default as IntroPage   } from './Intro'
+export { default as InsiderPage } from './Insider'
+export { default as ContactPage } from './Contact'

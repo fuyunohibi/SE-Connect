@@ -1,0 +1,1 @@
+export { defaultl as LoginModal } from './LoginModal';

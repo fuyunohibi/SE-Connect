@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* ============ NAVBAR ============ */
+@keyframes slideFromBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFromTop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.slide-from-bottom {
+  animation: slideFromBottom 0.3s ease-out forwards;
+}
+
+.slide-from-top {
+  animation: slideFromTop 0.3s ease-out forwards;
+}
+
+
+/* ============ CARD FLIPPING ANIMATION ============ */
+@layer components {
+  .flip-container {
+    perspective: 1500px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    backface-visibility: hidden;
+    transition: transform 0.8s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .flip-card-front {
+    z-index: 2;
+    transform: rotateY(0deg);
+  }
+
+  .flip-container:hover .flip-card-front {
+    transform: rotateY(-180deg);
+  }
+
+  .flip-card-back {
+    transform: rotateY(180deg);
+    z-index: 1;
+  }
+
+  .flip-container:hover .flip-card-back {
+    transform: rotateY(0deg);
+  }
+}
+
+
+
