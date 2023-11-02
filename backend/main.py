@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import login
+from routers import login, booking
 from ZODB import DB, FileStorage
 import transaction
 from contextlib import contextmanager
@@ -23,6 +23,7 @@ def zodb_connection():
 
 # Include your routers
 app.include_router(login.router)
+app.include_router(booking.router)
 
 if __name__ == "__main__":
     import uvicorn
