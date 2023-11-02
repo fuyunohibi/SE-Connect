@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
-import persistent
-import transaction
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
-import re
+from persistent import Persistent
+from passlib.context import CryptContext
+import transaction
 
 router = APIRouter()
 
+# Password hashing configuration
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserCreate(BaseModel):
     email: str
@@ -17,7 +19,15 @@ class UserCreate(BaseModel):
     faculty: str = ""
     department: str = ""
 
-class UserDB(persistent.Persistent):
+class UserData(BaseModel):
+    email: str
+    ID: str
+    year: str
+    faculty: str
+    department: str
+
+# Define a UserDB class as a persistent object
+class UserDB(Persistent):
     def __init__(self, email, password, ID="", year="", faculty="", department=""):
         self.email = email
         self.password = password
@@ -25,6 +35,10 @@ class UserDB(persistent.Persistent):
         self.year = year
         self.faculty = faculty
         self.department = department
+
+class PasswordUpdateRequest(BaseModel):
+    email: str
+    new_password: str
 
 # Open the database connection and get the root
 storage = FileStorage('mydata.fs')
@@ -35,15 +49,18 @@ root = conn.root()
 # Implement user registration logic
 def register_user(user: UserCreate):
     if user.email in root:
-        return {"message":"Email already exists"}
-        #raise HTTPException(status_code=400, detail="Email already exists")\
-    #65011636@kmitl.ac.th
-    user_email = user.email.split('@') #65011636 , kmitl.ac.th
-    if(user_email[1] != "kmitl.ac.th" or not user_email[0].isdigit() or len(user_email[0]) != 8 or len(user_email) != 2):
-        return {"message":"KMITL email only"}
+        return {"message": "Email already exists"}
+    
+    user_email = user.email.split('@')
+    if (user_email[1] != "kmitl.ac.th" or not user_email[0].isdigit() or len(user_email[0]) != 8 or len(user_email) != 2):
+        return {"message": "KMITL email only"}
 
-    user_db = UserDB(**user.dict())
-    root[user_db.email] = user_db
+    # Hash the password before storing it
+    hashed_password = pwd_context.hash(user.password)
+    
+    # Create a unique key for each user (e.g., using email as the key)
+    user_db = UserDB(email=user.email, password=hashed_password, ID=user.ID, year=user.year, faculty=user.faculty, department=user.department)
+    root[user.email] = user_db
     transaction.commit()
     return {"message": "User registered successfully"}
 
@@ -51,21 +68,32 @@ def register_user(user: UserCreate):
 async def register(user: UserCreate):
     return register_user(user)
 
-# Implement login logic with extended User model
+# Implement login logic
 @router.post("/login", response_model=dict)
 async def login(user: UserCreate):
     user_in_db = root.get(user.email)
 
-    if user_in_db and user_in_db.password == user.password:
+    if user_in_db and pwd_context.verify(user.password, user_in_db.password):
         return {"message": "Login successful"}
     
-    raise HTTPException(status_code=401, detail="Login failed")
+    return {"message": "Login failed"}
+
+@router.put("/update_password", response_model=dict)
+async def update_password(request_data: PasswordUpdateRequest):
+    email = request_data.email
+    new_password = request_data.new_password
+    user_in_db = root.get(email)
+    if user_in_db:
+        # Hash the new password
+        new_hashed_password = pwd_context.hash(new_password)
+        user_in_db.password = new_hashed_password
+        transaction.commit()
+        return {"message": "Password updated successfully"}
+    return {"message": "User not found"}
 
 
-@router.get("/get_users")
-def get_users():
-    user_list = []
-    for key, user in root.items():
-        user_list.append({"email": user.email, "password": user.password, "ID": user.ID, "year": user.year, "faculty": user.faculty, "department": user.department})
-    
+# Add a new endpoint to retrieve user data
+@router.get("/get_users", response_model=list[UserData])
+async def get_users():
+    user_list = [UserData(email=user.email, ID=user.ID, year=user.year, faculty=user.faculty, department=user.department) for user in root.values()]
     return user_list

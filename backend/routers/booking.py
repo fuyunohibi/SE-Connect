@@ -8,111 +8,85 @@ import string
 
 router = APIRouter()
 
-storage = FileStorage('roomdata3.fs')
+storage = FileStorage('roomdata.fs')
 db = DB(storage)
 conn = db.open()
 root = conn.root()
 
-buildings = ["HM","ECC","Prathep"]
-
+valid_buildings = {"HM", "ECC", "Prathep"}
 
 def generate_random_string(length):
-    alphabet = string.ascii_letters + string.digits  # You can customize this to include other characters
+    alphabet = string.ascii_letters + string.digits
     random_string = ''.join(secrets.choice(alphabet) for _ in range(length))
     return random_string
 
-class BookARoom(BaseModel):
-    ID: str
-    building:str
-    time:dict
-    requestID:str
-    date:str
+class BookingRequest(BaseModel):
+    room_id: str
+    building: str
+    time_slot: dict
+    request_id: str
+    date: str
 
-    def __init__(self ,ID ,building ,time ,date):
-        super().__init__(ID=ID ,building=building ,time=time ,requestID=generate_random_string(10) ,date=date)
+    def __init__(self, room_id, building, time_slot, date):
+        super().__init__(room_id=room_id, building=building, time_slot=time_slot, request_id=generate_random_string(10), date=date)
 
-                    #12:00, 13:30
-def isGreaterTime(time1: str, time2: str):
-    try:
-        hour1, minute1 = map(int, time1.split(":"))
-        hour2, minute2 = map(int, time2.split(":"))
-
-        if hour1 > hour2 or (hour1 == hour2 and minute1 > minute2):
-            return True
-        else:
-            return False
-    except (ValueError, IndexError):
-        return False
-
-def isAvaliable(booking :BookARoom):
-    if booking.building not in buildings:
+def is_available(booking: BookingRequest):
+    if booking.building not in valid_buildings:
         return False
     
-    for request in root:
-        book = root[request]
-        if book.date != booking.date:
+    for request_id in root:
+        existing_booking = root[request_id]
+        if existing_booking.date != booking.date:
             continue
-        if booking.building != book.building or booking.ID != book.ID:
+        if booking.building != existing_booking.building or booking.room_id != existing_booking.room_id:
             continue
-        if isGreaterTime(booking.time["startTime"] ,book.time["startTime"]) and isGreaterTime(book.time["endTime"],booking.time["startTime"]):
-            return False
-        if isGreaterTime(booking.time["endTime"] ,book.time["startTime"]) and isGreaterTime(book.time["endTime"] ,booking.time["endTime"]):
-            return False
-        if isGreaterTime(booking.time["endTime"] ,book.time["endTime"]) and isGreaterTime(book.time["startTime"] ,booking.time["startTime"]):
-            return False
-        if isGreaterTime(book.time["endTime"] ,booking.time["endTime"]) and isGreaterTime(booking.time["startTime"] ,book.time["startTime"]):
-            return False
-        if booking.time["startTime"] == book.time["startTime"] or book.time["endTime"] == booking.time["endTime"]:
+        if booking.time_slot["start_time"] < existing_booking.time_slot["end_time"] and booking.time_slot["end_time"] > existing_booking.time_slot["start_time"]:
             return False
     return True
+
+@router.post('/book/request', response_model=dict)
+async def request_booking(booking: BookingRequest):
+    if booking.time_slot["start_time"] >= booking.time_slot["end_time"]:
+        return {"message": "Invalid Time"}
     
-@router.post('/book/request' ,response_model=dict)
-async def requestBooking(booking: BookARoom):
-    if int(booking.time["startTime"][0:2]) > int(booking.time["endTime"][0:2]):
-        return {"message":"Invalid Time"}
-    elif booking.time["startTime"][0:2] == booking.time["endTime"][0:2]:
-        if int(booking.time["startTime"][3:5]) >= int(booking.time["endTime"][3:5]):
-            return {"message":"Invalid Time"}
-        
-    if not isAvaliable(booking):
-        return {"message":"Unavaliable Room"}    
-    root[booking.requestID] = booking
+    if not is_available(booking):
+        return {"message": "Unavailable Room"}    
+
+    root[booking.request_id] = booking
     transaction.commit()
-    start_time = booking.time["startTime"]
-    end_time = booking.time["endTime"]
-    message = f"Building Name :{booking.building} ID : {booking.ID} Start Time : {start_time} End Time : {end_time} "
-    return {"message":message}
+    start_time = booking.time_slot["start_time"]
+    end_time = booking.time_slot["end_time"]
+    message = f"Building Name: {booking.building}, Room ID: {booking.room_id}, Start Time: {start_time}, End Time: {end_time}"
+    return {"message": message}
 
-
-@router.get("/get_rooms",response_model=list)
+@router.get("/get_rooms", response_model=list)
 def get_rooms():
     room_list = []
-    for request in root:
-        room = root[request]
+    for request_id in root:
+        booking = root[request_id]
         room_list.append({
-            "ID":room.ID,
-            "building":room.building,
-            "Start Time":room.time["startTime"],
-            "End Time":room.time["endTime"],
-            "requestID":room.requestID,
-            "Date":room.date
+            "Room ID": booking.room_id,
+            "Building": booking.building,
+            "Start Time": booking.time_slot["start_time"],
+            "End Time": booking.time_slot["end_time"],
+            "Request ID": booking.request_id,
+            "Date": booking.date
         })
     return room_list
 
-
-@router.get("/roomID/building={building}/id={ID}",response_model=list[dict])
-async def getRoom(building:str ,ID:str):
-    arr = []
-    for r in root:
-        room = root[r]
-        if room.building == building and room.ID == ID:
-            dict = {
-                "ID":room.ID,
-                "building":room.building,
-                "Start Time":room.time["startTime"],
-                "End Time":room.time["endTime"],
-                "requestID":room.requestID,
-                "Date":room.date
+@router.get("/room/room_id={room_id}/building={building}", response_model=list[dict])
+async def get_rooms_for_user(room_id: str, building: str):
+    room_bookings = []
+    for request_id in root:
+        booking = root[request_id]
+        if booking.building == building and booking.room_id == room_id:
+            booking_info = {
+                "Room ID": booking.room_id,
+                "Building": booking.building,
+                "Start Time": booking.time_slot["start_time"],
+                "End Time": booking.time_slot["end_time"],
+                "Request ID": booking.request_id,
+                "Date": booking.date
             }
-            arr.append(dict)
-    return arr
+            room_bookings.append(booking_info)
+    return room_bookings
