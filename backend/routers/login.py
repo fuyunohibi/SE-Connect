@@ -14,13 +14,21 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class UserCreate(BaseModel):
     email: str
     password: str
-    ID: str = ""
-    year: str = ""
-    faculty: str = ""
-    department: str = ""
+    firstname: str
+    lastname: str
+    ID: str
+    year: str
+    faculty: str
+    department: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 class UserData(BaseModel):
     email: str
+    firstname: str
+    lastname: str
     ID: str
     year: str
     faculty: str
@@ -28,9 +36,11 @@ class UserData(BaseModel):
 
 # Define a UserDB class as a persistent object
 class UserDB(Persistent):
-    def __init__(self, email, password, ID="", year="", faculty="", department=""):
+    def __init__(self, email, password, firstname, lastname, ID, year, faculty, department):
         self.email = email
         self.password = password
+        self.firstname = firstname
+        self.lastname = lastname
         self.ID = ID
         self.year = year
         self.faculty = faculty
@@ -40,26 +50,51 @@ class PasswordUpdateRequest(BaseModel):
     email: str
     new_password: str
 
-# Open the database connection and get the root
-storage = FileStorage('mydata.fs')
+defaultUser = UserCreate(
+    email="12345678@kmitl.ac.th",
+    password="1234",
+    firstname="John",
+    lastname="Doe",
+    ID="12345678",
+    year="2",
+    faculty="ALL",
+    department="CEO",
+)
+
+loginInfo = {"isLogin": False, "user": defaultUser}
+
+storage = FileStorage("user_data.fs")
 db = DB(storage)
 conn = db.open()
 root = conn.root()
 
-# Implement user registration logic
 def register_user(user: UserCreate):
     if user.email in root:
         return {"message": "Email already exists"}
-    
-    user_email = user.email.split('@')
-    if (user_email[1] != "kmitl.ac.th" or not user_email[0].isdigit() or len(user_email[0]) != 8 or len(user_email) != 2):
+
+    user_email = user.email.split("@")
+    if (
+        user_email[1] != "kmitl.ac.th"
+        or not user_email[0].isdigit()
+        or len(user_email[0]) != 8
+        or len(user_email) != 2
+    ):
         return {"message": "KMITL email only"}
 
     # Hash the password before storing it
     hashed_password = pwd_context.hash(user.password)
-    
+
     # Create a unique key for each user (e.g., using email as the key)
-    user_db = UserDB(email=user.email, password=hashed_password, ID=user.ID, year=user.year, faculty=user.faculty, department=user.department)
+    user_db = UserDB(
+        email=user.email,
+        password=hashed_password,
+        firstname=user.firstname,
+        lastname=user.lastname,
+        ID=user.ID,
+        year=user.year,
+        faculty=user.faculty,
+        department=user.department,
+    )
     root[user.email] = user_db
     transaction.commit()
     return {"message": "User registered successfully"}
@@ -68,12 +103,22 @@ def register_user(user: UserCreate):
 async def register(user: UserCreate):
     return register_user(user)
 
-# Implement login logic
 @router.post("/login", response_model=dict)
-async def login(user: UserCreate):
+async def login(user: UserLogin):
     user_in_db = root.get(user.email)
 
     if user_in_db and pwd_context.verify(user.password, user_in_db.password):
+        loginInfo["isLogin"] = True
+        loginInfo["user"] = UserCreate(
+            email=user_in_db.email,
+            password=user_in_db.password,
+            firstname=user_in_db.firstname,
+            lastname=user_in_db.lastname,
+            ID=user_in_db.ID,
+            year=user_in_db.year,
+            faculty=user_in_db.faculty,
+            department=user_in_db.department,
+        )
         return {"message": "Login successful"}
     
     return {"message": "Login failed"}
@@ -91,9 +136,35 @@ async def update_password(request_data: PasswordUpdateRequest):
         return {"message": "Password updated successfully"}
     return {"message": "User not found"}
 
-
-# Add a new endpoint to retrieve user data
 @router.get("/get_users", response_model=list[UserData])
 async def get_users():
-    user_list = [UserData(email=user.email, ID=user.ID, year=user.year, faculty=user.faculty, department=user.department) for user in root.values()]
+    user_list = [
+        UserData(
+            email=user.email,
+            ID=user.ID,
+            firstname=user.firstname,
+            lastname=user.lastname,
+            year=user.year,
+            faculty=user.faculty,
+            department=user.department,
+        )
+        for user in root.values()
+    ]
     return user_list
+
+@router.get("/users/{user_id}", response_model=dict)
+async def get_user_by_id(user_id: str):
+    for i in router:
+        user = router[i]
+        if user.ID == user_id:
+            return user.dict()
+    return {"message": "User not found"}
+
+@router.get("/logout",response_model=dict)
+async def logout():
+    if not loginInfo["isLogin"]:
+        return {"message": "Login First"}
+    else:
+        loginInfo["isLogin"] = False
+        loginInfo["user"] = defaultUser
+        return {"message": "Logout Successfully"}
