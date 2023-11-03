@@ -46,22 +46,7 @@ class UserDB(Persistent):
         self.faculty = faculty
         self.department = department
 
-class PasswordUpdateRequest(BaseModel):
-    email: str
-    new_password: str
-
-defaultUser = UserCreate(
-    email="12345678@kmitl.ac.th",
-    password="1234",
-    firstname="John",
-    lastname="Doe",
-    ID="12345678",
-    year="2",
-    faculty="ALL",
-    department="CEO",
-)
-
-loginInfo = {"isLogin": False, "user": defaultUser}
+LOGIN_INFO = {"isLogin": False, "user": ""}
 
 storage = FileStorage("user_data.fs")
 db = DB(storage)
@@ -108,8 +93,8 @@ async def login(user: UserLogin):
     user_in_db = root.get(user.email)
 
     if user_in_db and pwd_context.verify(user.password, user_in_db.password):
-        loginInfo["isLogin"] = True
-        loginInfo["user"] = UserCreate(
+        LOGIN_INFO["isLogin"] = True
+        LOGIN_INFO["user"] = UserCreate(
             email=user_in_db.email,
             password=user_in_db.password,
             firstname=user_in_db.firstname,
@@ -124,7 +109,7 @@ async def login(user: UserLogin):
     return {"message": "Login failed"}
 
 @router.put("/update_password", response_model=dict)
-async def update_password(request_data: PasswordUpdateRequest):
+async def update_password(request_data: UserLogin):
     email = request_data.email
     new_password = request_data.new_password
     user_in_db = root.get(email)
@@ -136,8 +121,8 @@ async def update_password(request_data: PasswordUpdateRequest):
         return {"message": "Password updated successfully"}
     return {"message": "User not found"}
 
-@router.get("/get_users", response_model=list[UserData])
-async def get_users():
+@router.get("/users/all", response_model=list[UserData])
+async def get_all_users():
     user_list = [
         UserData(
             email=user.email,
@@ -160,11 +145,11 @@ async def get_user_by_id(user_id: str):
             return user.dict()
     return {"message": "User not found"}
 
-@router.get("/logout",response_model=dict)
+@router.get("/logout", response_model=dict)
 async def logout():
-    if not loginInfo["isLogin"]:
+    if not LOGIN_INFO["isLogin"]:
         return {"message": "Login First"}
     else:
-        loginInfo["isLogin"] = False
-        loginInfo["user"] = defaultUser
+        LOGIN_INFO["isLogin"] = False
+        LOGIN_INFO["user"] = ""
         return {"message": "Logout Successfully"}

@@ -46,9 +46,9 @@ def is_available(booking: BookingRequest):
             return False
     return True
 
-@router.post('/book/request', response_model=dict)
+@router.post('/reservation/request', response_model=dict)
 async def request_booking(booking: BookingRequest):
-    if not login.loginInfo["isLogin"]:
+    if not login.LOGIN_INFO["isLogin"]:
         return {'message':"Please Login First"}
     
     if booking.time_slot["start_time"] >= booking.time_slot["end_time"]:
@@ -57,7 +57,7 @@ async def request_booking(booking: BookingRequest):
     if not is_available(booking):
         return {"message": "Unavailable Room"}
     
-    booking.booked_by = login.loginInfo["user"]
+    booking.booked_by = login.LOGIN_INFO["user"]
     root[booking.request_id] = booking
     transaction.commit()
     start_time = booking.time_slot["start_time"]
@@ -65,27 +65,20 @@ async def request_booking(booking: BookingRequest):
     message = f"Building Name: {booking.building}, Room ID: {booking.room_id}, Start Time: {start_time}, End Time: {end_time}"
     return {"message": message}
 
-@router.get("/get_rooms", response_model=list)
-def get_rooms():
+@router.get("/reservation/all", response_model=list)
+def get_all_rooms():
     room_list = []
     for request_id in root:
         booking = root[request_id]
         booked_by = booking.booked_by
-
-        if isinstance(booked_by, login.UserCreate):
-            # Extract user information from the UserCreate object
-            user_info = {
-                "email": booked_by.email,
-                "firstname": booked_by.firstname,
-                "lastname": booked_by.lastname
-            }
-        else:
-            # Handle the case when booked_by is not a UserCreate object
-            user_info = "Unknown User"
-
+        user_info = {
+            "email": booked_by.email,
+            "firstname": booked_by.firstname,
+            "lastname": booked_by.lastname
+        }
         room_list.append({
-            "Room ID": booking.room_id,
             "Building": booking.building,
+            "Room ID": booking.room_id,
             "Start Time": booking.time_slot["start_time"],
             "End Time": booking.time_slot["end_time"],
             "Request ID": booking.request_id,
@@ -95,20 +88,26 @@ def get_rooms():
     return room_list
 
 
-@router.get("/room/room_id={room_id}/building={building}", response_model=list[dict])
-async def get_rooms_for_user(room_id: str, building: str):
+@router.get("/reservation/building={building}/room_id={room_id}", response_model=list[dict])
+async def get_room(building: str, room_id: str):
     room_bookings = []
     for request_id in root:
         booking = root[request_id]
         if booking.building == building and booking.room_id == room_id:
+            booked_by = booking.booked_by
+            user_info = {
+                "email": booked_by.email,
+                "firstname": booked_by.firstname,
+                "lastname": booked_by.lastname
+            }
             booking_info = {
-                "Room ID": booking.room_id,
                 "Building": booking.building,
+                "Room ID": booking.room_id,
                 "Start Time": booking.time_slot["start_time"],
                 "End Time": booking.time_slot["end_time"],
                 "Request ID": booking.request_id,
                 "Date": booking.date,
-                "Booked By": booking.booked_by.firstname + " " + booking.booked_by.lastname
+                "Booked By": user_info
             }
             room_bookings.append(booking_info)
     return room_bookings
