@@ -15,8 +15,8 @@ class UserDB(persistent.Persistent):
 # Open the database connection and get the root
 storage = FileStorage('mydata.fs')
 db = DB(storage)
-conn = db.open()
-root = conn.root()
+connection = db.open()
+root = connection.root()
 
 try:
     users = [
@@ -33,5 +33,5 @@ except Exception as e:
     transaction.abort()
     print("Error:", str(e))
 finally:
-    conn.close()
+    connection.close()
     db.close()

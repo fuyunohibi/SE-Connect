@@ -50,8 +50,8 @@ LOGIN_INFO = {"isLogin": False, "user": ""}
 
 storage = FileStorage("user_data.fs")
 db = DB(storage)
-conn = db.open()
-root = conn.root()
+connection = db.open()
+root = connection.root()
 
 def register_user(user: UserCreate):
     if user.email in root:
@@ -64,7 +64,7 @@ def register_user(user: UserCreate):
         or len(user_email[0]) != 8
         or len(user_email) != 2
     ):
-        return {"message": "KMITL email only"}
+        return {"message": "Requires KMITL email only"}
 
     # Hash the password before storing it
     hashed_password = pwd_context.hash(user.password)

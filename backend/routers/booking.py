@@ -11,8 +11,8 @@ router = APIRouter()
 
 storage = FileStorage('booking_data.fs')
 db = DB(storage)
-conn = db.open()
-root = conn.root()
+connection = db.open()
+root = connection.root()
 
 valid_buildings = {"HM", "ECC", "Prathep"}
 
