@@ -7,9 +7,16 @@ const NavigateBackButton = ({ useFixed = false, useAnimation = false, top, left,
 
   return (
     <div
+      style={{
+        position: useFixed ? "fixed" : "absolute",
+        top: `${top}rem`,
+        right: `${right}rem`,
+        bottom: `${bottom}rem`,
+        left: `${left}rem`,
+      }}
       className={`${
         useFixed ? "fixed" : "absolute"
-      } top-${top} right-${right} bottom-${bottom} left-${left} bg-black bg-opacity-50 rounded-full w-${width} h-${height} flex justify-center items-center 
+      }  bg-black bg-opacity-50 rounded-full w-${width} h-${height} flex justify-center items-center 
       ${
         useAnimation
           ? "hover:bg-button-hover hover:-translate-x-1  transition duration-500 ease-in-out"

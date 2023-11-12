@@ -20,7 +20,7 @@ const NewsDetail = () => {
     <React.Fragment>
       {!isTablet ? (
         <React.Fragment>
-          <NavigateBackButton top={4} left={4} />
+          <NavigateBackButton top={1} left={1} />
           <img src={newsItem.image} alt="news" />
           <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
             <p className="text-sm font-medium text-red-500 mb-2">
@@ -44,7 +44,7 @@ const NewsDetail = () => {
           <div className="mx-4 py-10">
             <p className="text-sm text-gray-600 mb-2">{newsItem.content}</p>
           </div>
-          <NavigateBackButton useFixed useAnimation right={6} bottom={4} width={16} height={16} />
+          <NavigateBackButton useFixed useAnimation right={2} bottom={2} width={16} height={16} />
         </React.Fragment>
       )}
     </React.Fragment>

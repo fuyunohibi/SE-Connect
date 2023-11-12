@@ -47,8 +47,8 @@ const Footer = () => {
         </div>
       </div>
       <div className="flex  w-full h-20 justify-start items-center mt-10 mb-16">
-        <button 
-          className="bg-black rounded-[3rem] h-full p-6 hover:bg-button-hover" 
+        <button
+          className="bg-black rounded-[3rem] h-full p-6 hover:bg-button-hover transition duration-500"
           onClick={toggleLoginModal}
         >
           <p className="text-white text-sm">Join the SE Family</p>
@@ -59,10 +59,7 @@ const Footer = () => {
         <span className="text-primary">Ko-Kwan Mongkholtham.</span> All Rights
         Reserved.
       </div>
-      {isLoginModalOpen
-        ? <LoginModal onClose={toggleLoginModal}/>
-        : null
-      }
+      {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </footer>
   );
 };

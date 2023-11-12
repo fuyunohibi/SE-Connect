@@ -1,9 +1,14 @@
 import React from 'react';
 import { Navbar, Footer } from '@/components/global';
-import { HomePage, IntroPage, AboutPage, InsiderPage, ContactPage, NewsPage, NewsDetail } from '@/pages';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HomePage, IntroPage, AboutPage, InsiderPage, ContactPage, NewsPage, NewsDetail, Login, Register } from '@/pages';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 const Main = () => {
+  const location = useLocation();
+
+  const isLoginOrSignup =
+    location.pathname === "/login" || location.pathname === "/signup";
+
   return (
     <main id="main-container" className="mb-32 md:mb-0">
       <Navbar />
@@ -22,8 +27,10 @@ const Main = () => {
         />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Register />} />
       </Routes>
-      <Footer />
+      {!isLoginOrSignup && <Footer />}
     </main>
   );
 };
