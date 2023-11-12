@@ -110,7 +110,7 @@ const Navbar = () => {
       <button
         onClick={toggleMenu}
         className={`absolute right-3 flex justify-center items-center bg-black-background rounded-full
-          hover:bg-button-hover transition duration-500
+          hover:bg-button-hover transition duration-500 hover:rotate-90
           h-12 w-12 p-[0.95rem]
           md:h-16 md:w-16  ${
             isLaptop && isMenuOpen ? "md:p-[1.5rem]" : "md:p-[1.4rem]"
@@ -162,7 +162,7 @@ const SmallMenuModal = ({ onClick, onClose }) => {
         <button
           onClick={onClick}
           className="absolute right-3 bottom-2 flex justify-center items-center bg-black-background rounded-full
-        hover:bg-button-hover transition-colors duration-300
+         hover:bg-button-hover transition duration-500 hover:rotate-90
           h-12 w-12 p-[1.1rem]
           md:h-16 md:w-16 md:p-[1.4rem] md:hidden"
         >
@@ -206,7 +206,7 @@ const LargeMenuModal = ({ onClick, onClose }) => {
           </div>
         ))}
       </div>
-      <SmallMenuModal onClick={onClick} />
+      <SmallMenuModal onClick={onClick} onClose={onClose}/>
     </>
   );
 };
