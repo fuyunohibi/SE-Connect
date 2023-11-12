@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import {
   BurgerIcon,
@@ -11,6 +12,7 @@ import {
   CloseIcon,
   AboutIcon,
 } from "@/assets/icons/Navbar";
+import { ArrowIcon } from "@/assets/icons/NavigationIcon";
 import { newsData } from "@/data";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import LoginModal from "@/components/global/Modals/LoginModal";
@@ -108,7 +110,7 @@ const Navbar = () => {
       <button
         onClick={toggleMenu}
         className={`absolute right-3 flex justify-center items-center bg-black-background rounded-full
-          hover:bg-button-hover
+          hover:bg-button-hover transition duration-500
           h-12 w-12 p-[0.95rem]
           md:h-16 md:w-16  ${
             isLaptop && isMenuOpen ? "md:p-[1.5rem]" : "md:p-[1.4rem]"
@@ -121,14 +123,14 @@ const Navbar = () => {
         />
       </button>
       {isLaptop
-        ? isMenuOpen && <LargeMenuModal />
-        : isMenuOpen && <SmallMenuModal onClick={toggleMenu} />}
+        ? isMenuOpen && <LargeMenuModal onClick={toggleMenu} onClose={toggleMenu} />
+        : isMenuOpen && <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu}/>}
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </nav>
   );
 };
 
-const SmallMenuModal = ({ onClick }) => {
+const SmallMenuModal = ({ onClick, onClose }) => {
   return (
     <div
       className="fixed slide-from-bottom mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[2rem] shadow-md
@@ -146,7 +148,8 @@ const SmallMenuModal = ({ onClick }) => {
               key={item.id}
               id={item.id}
               to={item.link}
-              className="flex flex-col justify-center items-center  rounded-full w-12 h-12 "
+              className="flex flex-col justify-center items-center  rounded-full w-12 h-12"
+              onClick={onClose}
             >
               <p
                 className={"text-black font-medium text-center hover:underline"}
@@ -159,7 +162,7 @@ const SmallMenuModal = ({ onClick }) => {
         <button
           onClick={onClick}
           className="absolute right-3 bottom-2 flex justify-center items-center bg-black-background rounded-full
-        hover:bg-button-hover
+        hover:bg-button-hover transition-colors duration-300
           h-12 w-12 p-[1.1rem]
           md:h-16 md:w-16 md:p-[1.4rem] md:hidden"
         >
@@ -174,7 +177,8 @@ const SmallMenuModal = ({ onClick }) => {
   );
 };
 
-const LargeMenuModal = ({ onClick }) => {
+const LargeMenuModal = ({ onClick, onClose }) => {
+  const navigate = useNavigate();
   return (
     <>
       <div className="fixed slide-from-top grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-24 px-3 py-3 bg-white h-64 shadow-md rounded-[2rem]">
@@ -185,7 +189,20 @@ const LargeMenuModal = ({ onClick }) => {
               alt="News Image"
               className="object-cover w-full h-full rounded-[1.75rem]"
             />
-            <button className="absolute bottom-4 left-4 bg-button-black h-11 w-11 rounded-full p-4 hover:bg-button-hover"></button>
+            <button
+              className="absolute top-3 left-3 bg-button-black h-11 w-11 rounded-full p-4
+             hover:bg-button-hover hover:translate-x-1 hover:translate-y-1 transition duration-500 ease-in-out"
+              onClick={() => {
+                navigate(`/news/${news.id}`);
+                onClose();
+              }}
+            >
+              <img
+                src={ArrowIcon}
+                alt="Arrow Icon"
+                className="object-contain w-full h-full"
+              />
+            </button>
           </div>
         ))}
       </div>

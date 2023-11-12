@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar, Footer } from '@/components/global';
-import { HomePage, IntroPage, AboutPage, InsiderPage, ContactPage, NewsPage } from '@/pages';
+import { HomePage, IntroPage, AboutPage, InsiderPage, ContactPage, NewsPage, NewsDetail } from '@/pages';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 const Main = () => {
@@ -21,6 +21,7 @@ const Main = () => {
           }
         />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetail />} />
       </Routes>
       <Footer />
     </main>
