@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container, InputAdornment } from "@mui/material";
 import { CheckIcon } from "@/assets/icons/Auth";
@@ -8,15 +8,35 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 
-const LoginPassword = () => {
+const RegisterPassword = () => {
   const navigate = useNavigate();
 
   const { email, clearEmail } = useUserStore();
 
+  const passwordRef = useRef(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isEmailFocused, setEmailFocused] = useState(false);
   const [isPasswordFocused, setPasswordFocused] = useState(false);
+  const [shakePassword, setShakePassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+
+  const handleContinueClick = (event) => {
+    event.preventDefault();
+    if (password.length >= 12) {
+      navigate("/");
+    } else {
+      setPasswordError("Password must be at least 12 characters long");
+      setShakePassword(true);
+
+      setTimeout(() => {
+        setShakePassword(false);
+        if (passwordRef.current) {
+          passwordRef.current.focus();
+        }
+      }, 500);
+    }
+  };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
@@ -50,7 +70,11 @@ const LoginPassword = () => {
           borderRadius: "20px",
         }}
       >
-        <h1 className="text-3xl font-bold">Enter your password</h1>
+        <h1 className="text-3xl font-bold">Create your account</h1>
+        <p className="text-sm text-center w-[84%]">
+          Note that KMITL Email may be required for signup. Your KMITL Email
+          will only be used to verify your identity for secuity purposes.
+        </p>
         <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
             required
@@ -94,15 +118,20 @@ const LoginPassword = () => {
             label="Password"
             type={showPassword ? "text" : "password"}
             id="password"
+            inputRef={passwordRef}
             onChange={handlePasswordChange}
             autoComplete="new-password"
             margin="normal"
             onFocus={() => setPasswordFocused(true)}
             onBlur={() => setPasswordFocused(false)}
             sx={{
+              animation: shakePassword
+                ? "shake 0.82s cubic-bezier(.36,.07,.19,.97) both"
+                : "none",
               "& .MuiOutlinedInput-root": {
                 "&.Mui-focused fieldset": {
-                  borderColor: "#d0514a",
+                  borderColor:
+                    passwordError && shakePassword ? "#d0514a" : "#d0514a",
                 },
               },
             }}
@@ -137,7 +166,7 @@ const LoginPassword = () => {
                   <p className="mt-4 mb-2 text-sm text-start">
                     Your password must contain:
                   </p>
-                  <div className="flex items-center ml-[0.425rem">
+                  <div className="flex items-center ml-[0.425rem]">
                     <img src={CheckIcon} alt="Check Icon" className="w-3 h-3" />
                     <span className="ml-2 text-sm text-status-success">
                       At least 12 characters
@@ -148,8 +177,8 @@ const LoginPassword = () => {
             </div>
           )}
           <button
-            type="submit"
-            onClick={() => navigate()}
+            type="button"
+            onClick={(e) => handleContinueClick(e)}
             className="mt-3 bg-black-background rounded-[3rem]  h-full w-full p-6 hover:bg-button-hover transition duration-500"
           >
             <p className="text-white text-sm">Continue</p>
@@ -169,4 +198,4 @@ const LoginPassword = () => {
   );
 };
 
-export default LoginPassword;
+export default RegisterPassword;

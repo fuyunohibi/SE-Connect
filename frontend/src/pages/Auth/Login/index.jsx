@@ -1,31 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container } from "@mui/material";
-import WarningIcon from "@mui/icons-material/Warning"; 
+import WarningIcon from "@mui/icons-material/Warning";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const { email, setEmail } = useUserStore();
+
+  const emailRef = useRef(null);
+  const [shakeEmail, setShakeEmail] = useState(false);
   const [isEmailFocused, setEmailFocused] = useState(false);
-  
+  const [emailError, setEmailError] = useState("");
+
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
     console.log(email);
-  }
+  };
 
   const isEmailValid = () => {
     return email.includes("@kmitl.ac.th");
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault(); 
+  const handleContinueClick = (event) => {
+    event.preventDefault();
     if (isEmailValid()) {
       navigate("/auth/login/password");
     } else {
-      alert("Email is not valid");
+      setEmailError("Email is not valid needs to be @kmitl.ac.th only");
+      setShakeEmail(true);
+
+      setTimeout(() => {
+        setShakeEmail(false);
+        if (emailRef.current) {
+          emailRef.current.focus();
+        }
+      }, 500);
     }
   };
 
@@ -47,8 +59,8 @@ const Login = () => {
           borderRadius: "20px",
         }}
       >
-        <h1 className="text-3xl font-bold">Welcome back</h1>
-        <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
+        <h1 className="text-3xl font-bold">Welcome Back</h1>
+        <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
             required
             fullWidth
@@ -58,13 +70,17 @@ const Login = () => {
             autoComplete="email"
             autoFocus
             margin="normal"
+            inputRef={emailRef}
             onChange={handleEmailChange}
             onFocus={() => setEmailFocused(true)}
             onBlur={() => setEmailFocused(false)}
             sx={{
+              animation: shakeEmail
+                ? "shake 0.82s cubic-bezier(.36,.07,.19,.97) both"
+                : "none",
               "& .MuiOutlinedInput-root": {
                 "&.Mui-focused fieldset": {
-                  borderColor: "#d0514a",
+                  borderColor: emailError && shakeEmail ? "#d0514a" : "#d0514a",
                 },
               },
             }}
@@ -81,7 +97,8 @@ const Login = () => {
             </div>
           )}
           <button
-            type="submit"
+            type="button"
+            onClick={(e) => handleContinueClick(e)}
             className="mt-3 bg-black-background rounded-[3rem]  h-full w-full p-6 hover:bg-button-hover transition duration-500"
           >
             <p className="text-white text-sm">Continue</p>
@@ -101,4 +118,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
