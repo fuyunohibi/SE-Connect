@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, APIRouter, File, UploadFile, Query, Form
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, APIRouter, File, UploadFile, Form, status
+from pydantic import BaseModel, EmailStr, validator
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
 from persistent import Persistent
@@ -9,12 +9,10 @@ import transaction, base64, uuid, os
 
 router = APIRouter()
 
-# Password hashing configuration
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr  
     password: str
     firstname: str
     lastname: str
@@ -24,97 +22,68 @@ class UserCreate(BaseModel):
 
 
 class UserLogin(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 
-class UserData(BaseModel):
-    email: str
-    firstname: str
-    lastname: str
-    ID: str
-    year_of_study: str
-    profile_picture: Optional[str] = None
+class UserData(UserCreate): 
+    pass
 
 
-# Define a UserDB class as a persistent object
 class UserDB(Persistent):
-    def __init__(
-        self,
-        email,
-        password,
-        firstname,
-        lastname,
-        ID,
-        year_of_study,
-        profile_picture=None,
-    ):
-        self.email = email
-        self.password = password
-        self.firstname = firstname
-        self.lastname = lastname
-        self.ID = ID
-        self.year_of_study = year_of_study
-        self.profile_picture = profile_picture
+    def __init__(self, user_data: UserCreate):
+        self.logged_in = False  
+        for field in user_data.dict():
+            setattr(self, field, user_data.dict()[field])
 
 
-LOGIN_INFO = {"isLogin": False, "user": ""}
 
-storage = FileStorage("user_data.fs")
-db = DB(storage)
-connection = db.open()
-root = connection.root()
+# NOTE: Global variable to store login information
+def init_db():
+    storage = FileStorage("user_data.fs")
+    db = DB(storage)
+    connection = db.open()
+    return connection.root()
 
-user_register = {
-    "email": None,
-    "password": None,
-}
+root = init_db()
+
+# NOTE: Validate KMITL email
+def is_valid_kmitl_email(email: str) -> bool:
+    return email.endswith("@kmitl.ac.th") and email.split("@")[0].isdigit() and len(email.split("@")[0]) == 8
 
 
 @router.post("/auth/register/identifier", response_model=dict)
-async def register_email(email_data: dict):
-    email = email_data["email"]
+async def register_email(email: EmailStr):
     if email in root:
-        return {"message": "Email already exists"}
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
 
-    user_email = email.split("@")
-    if (
-        user_email[1] != "kmitl.ac.th"
-        or not user_email[0].isdigit()
-        or len(user_email[0]) != 8
-        or len(user_email) != 2
-    ):
-        return {"message": "Requires KMITL email only"}
-    user_register["email"] = email
+    if not is_valid_kmitl_email(email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Requires KMITL email only")
+
+    # FIXME: CAPTAIN - A global variable, which is not recommended
+    global user_register
+    user_register = {"email": email}
     return {"message": "Email is valid"}
 
 
 @router.post("/auth/register/password", response_model=dict)
-async def register_password(password_data: dict):
-    password = password_data["password"]
-    # Hash the password before storing it
+async def register_password(password: str):
     hashed_password = pwd_context.hash(password)
+    global user_register
     user_register["password"] = hashed_password
-
     return {"message": "Password is valid"}
 
 
 UPLOAD_FOLDER = "profileImages"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-
-# Function to save the uploaded file to a specific location within a subdirectory named after the user's ID
+# NOTE: Save the uploaded file
 def save_uploaded_file(contents, filename, user_id):
     user_directory = os.path.join(UPLOAD_FOLDER, user_id)
-    if not os.path.exists(user_directory):
-        os.makedirs(user_directory)
-
+    os.makedirs(user_directory, exist_ok=True)
     file_path = os.path.join(user_directory, filename)
     with open(file_path, "wb") as new_file:
         new_file.write(contents)
-
     return file_path
 
 
@@ -127,10 +96,10 @@ async def register_user_details(
     profile_picture: UploadFile = File(...),
 ):
     contents = await profile_picture.read()
-    unique_filename = str(uuid.uuid4()) + ".jpeg"
+    unique_filename = f"{uuid.uuid4()}.jpeg"
     file_path = save_uploaded_file(contents, unique_filename, ID)
 
-    user_db = UserDB(
+    user_db = UserDB(UserCreate(
         email=user_register["email"],
         password=user_register["password"],
         firstname=firstname,
@@ -138,56 +107,32 @@ async def register_user_details(
         ID=ID,
         year_of_study=year_of_study,
         profile_picture=file_path,
-    )
+    ))
     root[user_register["email"]] = user_db
     transaction.commit()
     return {"message": "User registered successfully"}
 
 
-user_login = {
-    "email": None,
-    "password": None,
-}
-IS_VALID_EMAIL = False
-
-
-@router.post("/auth/login/identifier")
-async def is_valid_email(email_data: dict):
-    global IS_VALID_EMAIL
-    email = email_data["email"]
+@router.post("/auth/login/identifier", response_model=dict)
+async def is_valid_email(email: EmailStr):
     user_in_db = root.get(email)
     if user_in_db:
-        IS_VALID_EMAIL = True
-        user_login["email"] = email
         return {"message": "Email is valid"}
-    return {"message": "Email not found"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
 
 
 @router.post("/auth/login/password", response_model=dict)
-async def is_valid_password(password_data: dict):
-    password = password_data["password"]
-    print(IS_VALID_EMAIL)
-    if IS_VALID_EMAIL:
-        user_in_db = root.get(user_login["email"])
-        if user_in_db and pwd_context.verify(password, user_in_db.password):
-            LOGIN_INFO["isLogin"] = True
-            LOGIN_INFO["user"] = UserCreate(
-                email=user_in_db.email,
-                password=user_in_db.password,
-                firstname=user_in_db.firstname,
-                lastname=user_in_db.lastname,
-                ID=user_in_db.ID,
-                year_of_study=user_in_db.year_of_study,
-            )
-            return {"message": "Login successful"}
-        return {"message": "Password is incorrect"}
-    return {"message": "Email not found"}
+async def is_valid_password(email: EmailStr, password: str):
+    user_in_db = root.get(email)
+    if user_in_db and pwd_context.verify(password, user_in_db.password):
+        user_in_db.logged_in = True  # NOTE: Update logged-in status in DB
+        transaction.commit()
+        return {"message": "Login successful"}
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
 
 @router.put("/update_password", response_model=dict)
-async def update_password(request_data: UserLogin):
-    email = request_data.email
-    new_password = request_data.new_password
+async def update_password(email: EmailStr, new_password: str):
     user_in_db = root.get(email)
     if user_in_db:
         # Hash the new password
@@ -195,31 +140,28 @@ async def update_password(request_data: UserLogin):
         user_in_db.password = new_hashed_password
         transaction.commit()
         return {"message": "Password updated successfully"}
-    return {"message": "User not found"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 
 @router.get("/users/all", response_model=list[UserData])
 async def get_all_users():
-    user_list = [
+    return [
         UserData(
             email=user.email,
-            ID=user.ID,
             firstname=user.firstname,
             lastname=user.lastname,
+            ID=user.ID,
             year_of_study=user.year_of_study,
             profile_picture=user.profile_picture,
         )
-        for user in root.values()
+        for user in root.values() if isinstance(user, UserDB)
     ]
-    return user_list
-
 
 @router.get("/users/{user_id}", response_model=UserData)
 async def get_user_by_id(user_id: str):
-    for user_key in root.keys():
-        user = root[user_key]
-        if user.ID == user_id:
-            user_data = UserData(
+    for user in root.values():
+        if isinstance(user, UserDB) and user.ID == user_id:
+            return UserData(
                 email=user.email,
                 firstname=user.firstname,
                 lastname=user.lastname,
@@ -227,15 +169,14 @@ async def get_user_by_id(user_id: str):
                 year_of_study=user.year_of_study,
                 profile_picture=user.profile_picture,
             )
-            return user_data
-    return {"message": "User not found"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 
 @router.get("/logout", response_model=dict)
-async def logout():
-    if not LOGIN_INFO["isLogin"]:
-        return {"message": "Login First"}
-    else:
-        LOGIN_INFO["isLogin"] = False
-        LOGIN_INFO["user"] = ""
-        return {"message": "Logout Successfully"}
+async def logout(email: EmailStr):
+    user_in_db = root.get(email)
+    if user_in_db and user_in_db.logged_in:
+        user_in_db.logged_in = False  # NOTE: Update logged-in status in DB
+        transaction.commit()
+        return {"message": "Logged out successfully"}
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not logged in or email mismatch")

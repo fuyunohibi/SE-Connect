@@ -13,6 +13,7 @@ import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
+import Authentication from "@/lib/api/authentication";
 
 const RegisterUserDetails = () => {
   const navigate = useNavigate();
@@ -32,8 +33,9 @@ const RegisterUserDetails = () => {
 
   const handleAvatarChange = (event) => {
     if (event.target.files && event.target.files[0]) {
-      setAvatar(URL.createObjectURL(event.target.files[0]));
+      setAvatar(event.target.files[0]);
     }
+    console.log(userProfile.avatar);
   };
 
   const handleFirstNameChange = (event) => {
@@ -51,10 +53,31 @@ const RegisterUserDetails = () => {
     console.log(userProfile.yearOfStudy);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/");
+    try {
+      console.log("Options:", {
+        firstname: userProfile.firstName,
+        lastname: userProfile.lastName,
+        ID: userProfile.KmitlID,
+        year_of_study: userProfile.yearOfStudy,
+        profile_picture: userProfile.avatar,
+      });
+
+      await Authentication.registerUserDetails({
+        firstname: userProfile.firstName,
+        lastname: userProfile.lastName,
+        ID: userProfile.KmitlID,
+        year_of_study: userProfile.yearOfStudy,
+        profile_picture: userProfile.avatar,
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Error registering user details:", error);
+    }
   };
+
+
 
   useEffect(() => {
     if (userProfile.email.includes("@kmitl.ac.th")) {
@@ -65,8 +88,7 @@ const RegisterUserDetails = () => {
 
   useEffect(() => {
     console.log(userProfile);
-
-  }, [userProfile])
+  }, [userProfile]);
 
   return (
     <Container component="main" maxWidth="xs">

@@ -90,14 +90,14 @@ const Navbar = () => {
   return (
     <nav
       className="fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
-      z-50 h-16
+      z-50 h-14
       sm:mx-32 
       md:top-2 md:bottom-auto md:mx-5 md:h-18 md:rounded-[4rem]
       md:hidden
       "
     >
       <button
-        className="absolute left-2 flex 
+        className="absolute top-1 left-2 flex 
           w-12 h-12 rounded-full 
           md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] p-1
         "
@@ -111,7 +111,7 @@ const Navbar = () => {
       </button>
       <button
         onClick={toggleMenu}
-        className={`absolute right-2 flex justify-center items-center bg-black-background rounded-full
+        className={`absolute right-2 flex justify-center top-1  items-center bg-black-background rounded-full
           hover:bg-button-hover transition duration-500 hover:rotate-90
           h-12 w-12 p-[0.95rem]
           md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] md:p-[1.25rem] `}
@@ -122,13 +122,9 @@ const Navbar = () => {
           className="object-contain w-full h-full"
         />
       </button>
-      {isLaptop
-        ? isMenuOpen && (
-            <LargeMenuModal onClick={toggleMenu} onClose={toggleMenu} />
-          )
-        : isMenuOpen && (
-            <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu} />
-          )}
+      {isMenuOpen && (
+        <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu} />
+      )}
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </nav>
   );
@@ -181,38 +177,5 @@ const SmallMenuModal = ({ onClick, onClose }) => {
   );
 };
 
-const LargeMenuModal = ({ onClick, onClose }) => {
-  const navigate = useNavigate();
-  return (
-    <>
-      <div className="fixed slide-from-top grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-20 px-3 py-3 bg-white h-64 shadow-md rounded-[2rem]">
-        {newsData.map((news) => (
-          <div className="relative flex flex-1 bg-black-background rounded-[1.75rem] aspect-w-16 aspect-h-9">
-            <img
-              src={news.image}
-              alt="News Image"
-              className="object-cover w-full h-full rounded-[1.75rem]"
-            />
-            <button
-              className="absolute top-3 left-3 bg-button-black h-11 w-11 rounded-full p-4
-             hover:bg-button-hover hover:translate-x-1 hover:translate-y-1 transition duration-500 ease-in-out"
-              onClick={() => {
-                navigate(`/news/${news.id}`);
-                onClose();
-              }}
-            >
-              <img
-                src={ArrowIcon}
-                alt="Arrow Icon"
-                className="object-contain w-full h-full"
-              />
-            </button>
-          </div>
-        ))}
-      </div>
-      <SmallMenuModal onClick={onClick} onClose={onClose}/>
-    </>
-  );
-};
 
 export default Navbar;

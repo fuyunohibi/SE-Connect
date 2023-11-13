@@ -7,6 +7,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
+import Authentication from "@/lib/api/authentication";
 
 const RegisterPassword = () => {
   const navigate = useNavigate();
@@ -21,21 +22,49 @@ const RegisterPassword = () => {
   const [shakePassword, setShakePassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
+  const isPasswordValid = () => {
+    return password.length >= 12;
+  };
+
   const handleContinueClick = (event) => {
     event.preventDefault();
-    if (password.length >= 12) {
-      navigate("/auth/signup/user-details");
-    } else {
-      setPasswordError("Password must be at least 12 characters long");
-      setShakePassword(true);
+    if (!isPasswordValid()) {
+       setPasswordError("Password must be at least 12 characters long");
+       triggerShakeAnimation();
+      return;
+    } 
 
-      setTimeout(() => {
-        setShakePassword(false);
-        if (passwordRef.current) {
-          passwordRef.current.focus();
-        }
-      }, 500); 
+    Authentication.registerWithPassword(userProfile.password)
+      .then((res) => {
+        console.log("Response: ", res);
+        navigate("/auth/signup/user-details");
+      })
+      .catch((err) => {
+        console.error("Error: ", err);
+        handleRegistrationError(err);
+      });
+  };
+
+  const handleRegistrationError = (err) => {
+    if (err.response) {
+      setPasswordError(
+        err.response.data.detail || "Registration failed due to a server error."
+      );
+      triggerShakeAnimation();
+    } else {
+      setEmailError("An unexpected network error occurred. Please try again.");
+      triggerShakeAnimation();
     }
+  };
+
+  const triggerShakeAnimation = () => {
+    setShakePassword(true);
+    setTimeout(() => {
+      setShakePassword(false);
+      if (passwordRef.current) {
+        passwordRef.current.focus();
+      }
+    }, 500);
   };
 
   const handlePasswordChange = (event) => {

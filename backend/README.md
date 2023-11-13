@@ -12,6 +12,9 @@ You can install them using pip:
 ```bash
 pip install passlib
 pip install bcrypt
+pip install python-multipart
+pip install "pydantic[email]"
+uvicorn main:app --reload
 ```
 ## Getting Started
 Navigate to the 'backend' folder in the cloned repository.
@@ -22,5 +25,5 @@ Run the following command to start the application
 
 ```bash
 python populate_db.py
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```

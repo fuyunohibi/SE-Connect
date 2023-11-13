@@ -20,6 +20,7 @@ import SELogo from '@/components/global/Logo';
 import useCheckScreenSize from '@/hooks/useCheckScreenSize';
 import { newsData } from "@/data";
 import { NavLink } from "react-router-dom";
+import useUserStore from "@/store/useUserStore";
 
 const NavbarData = [
   {
@@ -87,7 +88,7 @@ const Home = () => {
   }
   return (
     <section className="relative flex flex-1 flex-col h-screen p-4">
-      <SELogo className="absolute left-0 right-0 " />
+      <SELogo className="absolute left-0 right-0 lg:scale-125" />
       <TransitionBurgerIconButton onClick={toggleLargeScreenModal} />
       <img
         src={KmitlDarkBackground}
@@ -112,7 +113,7 @@ const Home = () => {
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
       {isMenuOpen && (
         <>
-          <Navbar toggleMenu={toggleLargeScreenModal} />
+          <Navbar toggleMenu={toggleLargeScreenModal}  toggleLoginModal={toggleLoginModal}/>
           <LargeMenuModal
             onClick={toggleLargeScreenModal}
             onClose={toggleLargeScreenModal}
@@ -123,14 +124,9 @@ const Home = () => {
   );
 };
 
-const Navbar = ({ toggleMenu }) => {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  const toggleLoginModal = () => {
-    console.log("toggleLoginModal");
-    setIsLoginModalOpen(!isLoginModalOpen);
-  };
-
+const Navbar = ({ toggleMenu, toggleLoginModal }) => {
+  const { userProfile } = useUserStore();
+  console.log(userProfile.avatar);
   return (
     <nav
       className="hidden fixed slide-from-top mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
@@ -147,11 +143,14 @@ const Navbar = ({ toggleMenu }) => {
         onClick={toggleLoginModal}
       >
         <img
-          src={SoftwareEngineeringLogo}
-          alt="Logo"
+          src={userProfile.avatar}
+          alt="My Profile"
+          type="file"
+          accept="image/*"
           className="object-contain w-full h-full"
         />
       </button>
+      <SELogo className="absolute left-0 right-0 -top-[1rem] scale-75" />
       <button
         onClick={toggleMenu}
         className={`absolute right-2 flex justify-center items-center bg-black-background rounded-full
