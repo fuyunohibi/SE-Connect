@@ -70,11 +70,7 @@ const RegisterPassword = () => {
           borderRadius: "20px",
         }}
       >
-        <h1 className="text-3xl font-bold">Create your account</h1>
-        <p className="text-sm text-center w-[84%]">
-          Note that KMITL Email may be required for signup. Your KMITL Email
-          will only be used to verify your identity for secuity purposes.
-        </p>
+        <h1 className="text-3xl font-bold">Welcome Back</h1>
         <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
             required
