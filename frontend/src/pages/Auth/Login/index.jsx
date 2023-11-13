@@ -90,7 +90,7 @@ const Login = () => {
             Don't have an account?{" "}
             <span
               className="text-primary hover:underline"
-              onClick={() => navigate("/auth/signup")}
+              onClick={() => navigate("/auth/signup/identifier")}
             >
               Sign up
             </span>

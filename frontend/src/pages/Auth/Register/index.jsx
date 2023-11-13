@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning"; 
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
+import useUserStore from "@/store/useUserStore";
 
 const Register = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const { email, setEmail } = useUserStore();
+
+  const emailRef = useRef(null);
+  const [shakeEmail, setShakeEmail] = useState(false);
   const [isEmailFocused, setEmailFocused] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -19,14 +24,23 @@ const Register = () => {
     return email.includes("@kmitl.ac.th");
   };
 
-  const handleSubmit = (event) => {
+  const handleContinueClick = (event) => {
     event.preventDefault();
     if (isEmailValid()) {
       navigate("/auth/signup/password");
     } else {
-      alert("Email is not valid");
+      setEmailError("Email is not valid needs to be @kmitl.ac.th only");
+      setShakeEmail(true);
+
+      setTimeout(() => {
+        setShakeEmail(false);
+        if (emailRef.current) {
+          emailRef.current.focus();
+        }
+      }, 500);
     }
   };
+
 
   return (
     <Container component="main" maxWidth="xs">
@@ -51,7 +65,7 @@ const Register = () => {
           Note that KMITL Email may be required for signup. Your KMITL Email
           will only be used to verify your identity for secuity purposes.
         </p>
-        <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
+        <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
             required
             fullWidth
@@ -61,13 +75,17 @@ const Register = () => {
             autoComplete="email"
             autoFocus
             margin="normal"
+            inputRef={emailRef}
             onChange={handleEmailChange}
             onFocus={() => setEmailFocused(true)}
             onBlur={() => setEmailFocused(false)}
             sx={{
+              animation: shakeEmail
+                ? "shake 0.82s cubic-bezier(.36,.07,.19,.97) both"
+                : "none",
               "& .MuiOutlinedInput-root": {
                 "&.Mui-focused fieldset": {
-                  borderColor: "#d0514a",
+                  borderColor: emailError && shakeEmail ? "#d0514a" : "#d0514a",
                 },
               },
             }}
@@ -84,7 +102,8 @@ const Register = () => {
             </div>
           )}
           <button
-            type="submit"
+            type="button"
+            onClick={(e) => handleContinueClick(e)}
             className="mt-3 bg-black-background rounded-[3rem]  h-full w-full p-6 hover:bg-button-hover transition duration-500"
           >
             <p className="text-white text-sm">Continue</p>

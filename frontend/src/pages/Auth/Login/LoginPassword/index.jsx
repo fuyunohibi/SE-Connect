@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container, InputAdornment } from "@mui/material";
-import WarningIcon from '@mui/icons-material/Warning'; 
+import { CheckIcon } from "@/assets/icons/Auth";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 
@@ -11,18 +14,23 @@ const LoginPassword = () => {
   const { email, clearEmail } = useUserStore();
 
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isEmailFocused, setEmailFocused] = useState(false);
   const [isPasswordFocused, setPasswordFocused] = useState(false);
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
     console.log(password);
-  }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleEditClick = () => {
     clearEmail();
     navigate("/auth/login/identifier");
-  }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -84,7 +92,7 @@ const LoginPassword = () => {
             fullWidth
             name="password"
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             onChange={handlePasswordChange}
             autoComplete="new-password"
@@ -101,13 +109,42 @@ const LoginPassword = () => {
             InputLabelProps={{
               style: { color: isPasswordFocused ? "#d0514a" : "" },
             }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
-          {password.length > 0 && password.length < 12 && (
-            <div className="flex items-center text-red-500 mt-2">
-              <WarningIcon fontSize="small" />
-              <span className="ml-2 text-sm">
-                Password must be at least 12 characters
-              </span>
+          {password.length > 0 && (
+            <div className="flex items-center mt-2">
+              {password.length < 12 ? (
+                <div className="border w-full px-3 pb-4 rounded-md mb-2 border-textFieldBorder">
+                  <p className="mt-4 mb-2 text-sm text-start">
+                    Your password must contain:
+                  </p>
+                  <li className="ml-2 text-sm ">At least 12 characters</li>
+                </div>
+              ) : (
+                <div className="border w-full px-3 pb-4 rounded-md mb-2 border-textFieldBorder">
+                  <p className="mt-4 mb-2 text-sm text-start">
+                    Your password must contain:
+                  </p>
+                  <div className="flex items-center ml-[0.425rem">
+                    <img src={CheckIcon} alt="Check Icon" className="w-3 h-3" />
+                    <span className="ml-2 text-sm text-status-success">
+                      At least 12 characters
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <button
@@ -121,7 +158,7 @@ const LoginPassword = () => {
             Don't have an account?{" "}
             <span
               className="text-primary hover:underline"
-              onClick={() => navigate("/auth/login/password")}
+              onClick={() => navigate("/auth/signup/identifier")}
             >
               Sign up
             </span>

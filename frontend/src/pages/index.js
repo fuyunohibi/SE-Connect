@@ -9,4 +9,5 @@ export { default as Login            } from './Auth/Login'
 export { default as LoginPassword    } from './Auth/Login/LoginPassword'
 export { default as Register         } from './Auth/Register'
 export { default as RegisterPassword } from './Auth/Register/RegisterPassword'
+export { default as RegisterUserDetails  } from './Auth/Register/RegisterUserDetails'
 // export { default as ForgotPassword } from "./Auth/ForgotPassword";

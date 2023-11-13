@@ -44,6 +44,8 @@ export default {
         },
         disabled: "#AAAAAA",
 
+        textFieldBorder: "#c5c5c4",
+
         button: {
           black: "#262627",
           hover: "#d0514a",
