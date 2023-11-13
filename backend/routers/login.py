@@ -27,7 +27,7 @@ class UserLogin(BaseModel):
 
 
 class UserData(UserCreate): 
-    pass
+    password: str
 
 
 class UserDB(Persistent):
@@ -35,7 +35,14 @@ class UserDB(Persistent):
         self.logged_in = False  
         for field in user_data.dict():
             setattr(self, field, user_data.dict()[field])
-
+            
+class UserResponse(BaseModel):
+    email: EmailStr
+    firstname: str
+    lastname: str
+    ID: str
+    year_of_study: str
+    profile_picture: Optional[str] = None
 
 
 # NOTE: Global variable to store login information
@@ -95,22 +102,29 @@ async def register_user_details(
     year_of_study: str = Form(...),
     profile_picture: UploadFile = File(...),
 ):
+    email = user_register.get("email")
+    hashed_password = user_register.get("password")
+
+    if email is None or hashed_password is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password are required")
+
     contents = await profile_picture.read()
     unique_filename = f"{uuid.uuid4()}.jpeg"
     file_path = save_uploaded_file(contents, unique_filename, ID)
 
     user_db = UserDB(UserCreate(
-        email=user_register["email"],
-        password=user_register["password"],
+        email=email,
+        password=hashed_password,
         firstname=firstname,
         lastname=lastname,
         ID=ID,
         year_of_study=year_of_study,
         profile_picture=file_path,
     ))
-    root[user_register["email"]] = user_db
+    root[email] = user_db
     transaction.commit()
     return {"message": "User registered successfully"}
+
 
 
 @router.post("/auth/login/identifier", response_model=dict)
@@ -143,10 +157,10 @@ async def update_password(email: EmailStr, new_password: str):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 
-@router.get("/users/all", response_model=list[UserData])
+@router.get("/users/all", response_model=list[UserResponse])
 async def get_all_users():
     return [
-        UserData(
+        UserResponse(
             email=user.email,
             firstname=user.firstname,
             lastname=user.lastname,
@@ -157,11 +171,11 @@ async def get_all_users():
         for user in root.values() if isinstance(user, UserDB)
     ]
 
-@router.get("/users/{user_id}", response_model=UserData)
+@router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user_by_id(user_id: str):
     for user in root.values():
         if isinstance(user, UserDB) and user.ID == user_id:
-            return UserData(
+            return UserResponse(
                 email=user.email,
                 firstname=user.firstname,
                 lastname=user.lastname,
