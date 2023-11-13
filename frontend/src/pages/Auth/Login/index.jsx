@@ -1,25 +1,55 @@
-import React from "react";
-import { Button, TextField, Box, Typography, Container } from "@mui/material";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { TextField, Box, Container } from "@mui/material";
+import WarningIcon from "@mui/icons-material/Warning"; 
+import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
+import useUserStore from "@/store/useUserStore";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const { email, setEmail } = useUserStore();
+  const [isEmailFocused, setEmailFocused] = useState(false);
+  
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    console.log(email);
+  }
+
+  const isEmailValid = () => {
+    return email.includes("@kmitl.ac.th");
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); 
+    if (isEmailValid()) {
+      navigate("/auth/login/password");
+    } else {
+      alert("Email is not valid");
+    }
+  };
+
   return (
     <Container component="main" maxWidth="xs">
+      <div className="flex w-full justify-center items-center h-8  mt-10">
+        <img
+          src={SoftwareEngineeringLogo}
+          alt="Software Engineering Logo"
+          className="w-full h-full object-contain"
+        />
+      </div>
       <Box
         sx={{
           marginTop: 8,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          borderRadius: "20px", 
-          p: 4,
+          borderRadius: "20px",
         }}
       >
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box component="form" noValidate sx={{ mt: 1 }}>
+        <h1 className="text-3xl font-bold">Welcome back</h1>
+        <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
           <TextField
-            margin="normal"
             required
             fullWidth
             id="email"
@@ -27,25 +57,44 @@ const Login = () => {
             name="email"
             autoComplete="email"
             autoFocus
-          />
-          <TextField
             margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
+            onChange={handleEmailChange}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "&.Mui-focused fieldset": {
+                  borderColor: "#d0514a",
+                },
+              },
+            }}
+            InputLabelProps={{
+              style: { color: isEmailFocused ? "#d0514a" : "" },
+            }}
           />
-          <Button
+          {email !== "" && !isEmailValid() && (
+            <div className="flex items-center text-red-500 mt-2">
+              <WarningIcon fontSize="small" />
+              <span className="ml-2 text-sm">
+                Email is not valid needs to be @kmitl.ac.th only
+              </span>
+            </div>
+          )}
+          <button
             type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            className="mt-3 bg-black-background rounded-[3rem]  h-full w-full p-6 hover:bg-button-hover transition duration-500"
           >
-            Sign In
-          </Button>
+            <p className="text-white text-sm">Continue</p>
+          </button>
+          <p className="mt-4 text-sm text-center">
+            Don't have an account?{" "}
+            <span
+              className="text-primary hover:underline"
+              onClick={() => navigate("/auth/signup")}
+            >
+              Sign up
+            </span>
+          </p>
         </Box>
       </Box>
     </Container>

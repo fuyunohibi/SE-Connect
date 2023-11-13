@@ -16,13 +16,13 @@ const LoginModal = ({ onClose }) => {
         <div className="flex flex-col justify-end items-center mt-5 space-y-4 w-full">
           <button
             className="flex justify-center items-center py-4 w-full bg-black-background rounded-full hover:bg-button-hover transition duration-500"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/auth/login/identifier")}
           >
             <p className="text-white">Log In</p>
           </button>
           <button
             className="flex justify-center items-center py-4 w-full bg-black-background rounded-full hover:bg-button-hover transition duration-500"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/auth/signup/identifier")}
           >
             <p className="text-white">Sign up</p>
           </button>
