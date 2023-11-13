@@ -11,7 +11,7 @@ import useUserStore from "@/store/useUserStore";
 const RegisterPassword = () => {
   const navigate = useNavigate();
 
-  const { email, clearEmail } = useUserStore();
+  const { userProfile, clearEmail } = useUserStore();
 
   const passwordRef = useRef(null);
   const [password, setPassword] = useState("");
@@ -85,7 +85,7 @@ const RegisterPassword = () => {
             autoComplete="email"
             autoFocus
             margin="normal"
-            value={email}
+            value={userProfile.email}
             onFocus={() => setEmailFocused(true)}
             onBlur={() => setEmailFocused(false)}
             sx={{

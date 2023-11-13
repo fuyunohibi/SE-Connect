@@ -1,25 +1,62 @@
 import { create } from "zustand";
+import { DefaultUserProfile } from "@/assets/images/Auth";
 
 const useUserStore = create((set) => ({
-  email: "",
-  setEmail: (email) => set({ email }),
-  clearEmail: () => set({ email: "" }),
+  userProfile: {
+    email: "",
+    avatar: DefaultUserProfile,
+    KmitlID: "",
+    firstName: "",
+    lastName: "",
+    yearOfStudy: "",
+  },
 
-  KmitlID: "",
-  setKmitlID: (KmitlID) => set(() => ({ KmitlID })),
-  clearKmitlID: () => set({ KmitlID: "" }),
+  setUserProfile: (updates) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, ...updates },
+    })),
 
-  yearOfStudy: "",
-  setYearOfStudy: (yearOfStudy) => set(() => ({ yearOfStudy })),
-  clearYearOfStudy: () => set({ yearOfStudy: "" }),
+  setEmail: (email) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, email },
+    })),
+  clearEmail: () =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, email: "" },
+    })),
 
-  firstName: "",
-  setFirstName: (firstName) => set(() => ({ firstName })),
-  clearFirstName: () => set({ firstName: "" }),
+  setKmitlID: (KmitlID) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, KmitlID },
+    })),
+  clearKmitlID: () =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, KmitlID: "" },
+    })),
 
-  lastName: "",
-  setLastName: (lastName) => set(() => ({ lastName })),
-  clearLastName: () => set({ lastName: "" }),
+  setYearOfStudy: (yearOfStudy) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, yearOfStudy },
+    })),
+  clearYearOfStudy: () =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, yearOfStudy: "" },
+    })),
+
+  setAvatar: (avatar) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, avatar },
+    })),
+
+  setFirstName: (firstName) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, firstName },
+    })),
+
+  setLastName: (lastName) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, lastName },
+    })),
 }));
 
 export default useUserStore;

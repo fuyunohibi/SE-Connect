@@ -8,7 +8,7 @@ import useUserStore from "@/store/useUserStore";
 const Register = () => {
   const navigate = useNavigate();
 
-  const { email, setEmail } = useUserStore();
+  const { userProfile, setEmail } = useUserStore();
 
   const emailRef = useRef(null);
   const [shakeEmail, setShakeEmail] = useState(false);
@@ -17,11 +17,11 @@ const Register = () => {
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
-    console.log(email);
+    console.log(userProfile.email);
   };
 
   const isEmailValid = () => {
-    return email.includes("@kmitl.ac.th");
+    return userProfile.email.includes("@kmitl.ac.th");
   };
 
   const handleContinueClick = (event) => {
@@ -93,7 +93,7 @@ const Register = () => {
               style: { color: isEmailFocused ? "#d0514a" : "" },
             }}
           />
-          {email !== "" && !isEmailValid() && (
+          {userProfile.email !== "" && !isEmailValid() && (
             <div className="flex items-center text-red-500 mt-2">
               <WarningIcon fontSize="small" />
               <span className="ml-2 text-sm">

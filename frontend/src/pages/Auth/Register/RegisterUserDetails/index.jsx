@@ -9,40 +9,46 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 
 const RegisterUserDetails = () => {
   const navigate = useNavigate();
   const {
-    email,
-    yearOfStudy,
-    KmitlID,
-    firstName,
-    lastName,
+    userProfile,
     setKmitlID,
     setYearOfStudy,
     setFirstName,
     setLastName,
+    setAvatar,
   } = useUserStore();
+
   const [isKmitlIDFocused, setKmitlIDFocused] = useState(false);
   const [isYearOfStudyFocused, setYearOfStudyFocused] = useState(false);
   const [isFirstNameFocused, setFirstNameFocused] = useState(false);
   const [isLastNameFocused, setLastNameFocused] = useState(false);
-  
+
+  const handleAvatarChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      setAvatar(URL.createObjectURL(event.target.files[0]));
+    }
+  };
+
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
-    console.log(firstName);
+    console.log(userProfile.firstName);
   };
 
   const handleLastNameChange = (event) => {
     setLastName(event.target.value);
-    console.log(lastName);
+    console.log(userProfile.lastName);
   };
 
   const handleYearOfStudyChange = (event) => {
     setYearOfStudy(event.target.value);
-    console.log(yearOfStudy);
+    console.log(userProfile.yearOfStudy);
   };
 
   const handleSubmit = (event) => {
@@ -51,11 +57,16 @@ const RegisterUserDetails = () => {
   };
 
   useEffect(() => {
-    if (email.includes("@kmitl.ac.th")) {
-      const id = email.split("@kmitl.ac.th")[0];
+    if (userProfile.email.includes("@kmitl.ac.th")) {
+      const id = userProfile.email.split("@kmitl.ac.th")[0];
       setKmitlID(id);
     }
-  }, [email, setKmitlID]);
+  }, [userProfile.email, setKmitlID]);
+
+  useEffect(() => {
+    console.log(userProfile);
+
+  }, [userProfile])
 
   return (
     <Container component="main" maxWidth="xs">
@@ -80,12 +91,32 @@ const RegisterUserDetails = () => {
           Complete your account details to get started.
         </p>
         <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
+          <input
+            accept="image/*"
+            type="file"
+            id="icon-button-file"
+            style={{ display: "none" }}
+            onChange={handleAvatarChange}
+          />
+          <label htmlFor="icon-button-file">
+            <IconButton
+              color="primary"
+              aria-label="upload picture"
+              component="span"
+            >
+              <Avatar
+                alt="Profile Picture"
+                src={userProfile.avatar}
+                sx={{ width: 56, height: 56 }}
+              />
+            </IconButton>
+          </label>
           <TextField
             fullWidth
             id="KmitlID"
             label="KMITL ID"
             name="ID"
-            value={KmitlID}
+            value={userProfile.KmitlID}
             autoFocus
             margin="normal"
             onFocus={() => setKmitlIDFocused(true)}
@@ -126,8 +157,8 @@ const RegisterUserDetails = () => {
               labelId="year-label"
               id="year"
               autoFocus
-              value={yearOfStudy}
               label="Year of Study"
+              value={userProfile.yearOfStudy}
               onChange={handleYearOfStudyChange}
               onFocus={() => setYearOfStudyFocused(true)}
               onBlur={() => setYearOfStudyFocused(false)}
