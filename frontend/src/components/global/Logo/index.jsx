@@ -13,7 +13,6 @@ const SELogo = ({ className }) => {
           className="w-full h-full object-contain"
         />
       </div>
-      <h1>SE-Connect</h1>
     </div>
   );
 };

@@ -69,6 +69,12 @@ export default {
           waiting: "#FFBA29",
         },
       },
+      fontFamily: {
+        vanilla: ["Vanilla Ravioli", "sans-serif"],
+        didact: ["Didact Gothic", "sans-serif"],
+        japan: ["HolidayMDJP05", "sans-serif"],
+        "japan-bold": ["RiiTegakiFude", "sans-serif"],
+      },
     },
   },
   plugins: [require("@tailwindcss/aspect-ratio")],

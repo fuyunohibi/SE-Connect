@@ -1,15 +1,18 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import KmitlLogo from "@/assets/icons/Logo/KmitlLogo.png";
 import LoginModal from "@/components/global/Modals/LoginModal";
+import { ArrowUpIcon } from "@/assets/icons/NavigationIcon";
 
 const Footer = () => {
+  const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
   const toggleLoginModal = () => {
     console.log("toggleLoginModal");
     setIsLoginModalOpen(!isLoginModalOpen);
   };
   return (
-    <footer className="bg-neutral-gray p-8 rounded-3xl mx-4  text-black">
+    <footer className="bg-neutral-gray pt-8 px-8 pb-6 rounded-3xl mx-4  text-black">
       {/* Logo or Brand Name */}
       <div className="flex flex-col items-start justify-center mb-10 space-y-5 ">
         <div className="w-32 h-32 rounded-full -ml-3">
@@ -27,36 +30,86 @@ const Footer = () => {
       {/* Footer Links */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-col justify-start items-start space-y-8">
-          <p className="font-medium">Contacts</p>
+          <p className="text-sm font-medium text-black">Contacts</p>
           <ul>
-            <li>02-329-8000</li>
-            <li>02-329-8321</li>
+            <ul className="text-[0.65rem] text-black mb-5">
+              The start of your
+              <br />
+              journey begins here.
+            </ul>
+            <li className="text-md font-medium text-black hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out">
+              02-329-8000
+            </li>
+            <li className="text-md font-medium text-black hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out">
+              02-329-8321
+            </li>
+            <li className="text-[0.65rem] text-black mb-5">
+              Questions and suggestions
+            </li>
           </ul>
         </div>
 
-        <div className="flex flex-col justify-start items-center space-y-8">
-          <p className="font-medium">Follow us</p>
-          <ul>
-            <li>Facebook</li>
-            <li>Instagram</li>
+        <div className="flex flex-col justify-start items-center space-y-8 -ml-5">
+          <p className="text-sm font-medium text-black mr-6">Follow us</p>
+          <ul className="space-y-3">
+            <a
+              className="text-[0.8rem] font-normal -mt-[0.25rem] flex items-center hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
+              href="https://www.facebook.com/KMITL.SIIE/?locale=th_TH"
+            >
+              Facebook
+              <span className="ml-4">
+                <img
+                  src={ArrowUpIcon}
+                  className="w-[0.625rem] h-[0.625rem]"
+                  alt="Arrow Up Icon"
+                />
+              </span>
+            </a>
+            <li className="text-[0.8rem] font-normal flex items-center  hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out">
+              Instagram
+              <span className="ml-4">
+                <img
+                  src={ArrowUpIcon}
+                  className="w-[0.625rem] h-[0.625rem]"
+                  alt="Arrow Up Icon"
+                />
+              </span>
+            </li>
           </ul>
         </div>
 
-        <div className="flex flex-col justify-start items-center space-y-8">
-          <p className="font-medium">Website</p>
+        <div className="flex flex-col justify-start items-center space-y-8 mr-5">
+          <ul className="space-y-3">
+            <li
+              className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
+              onClick={() => navigate("/")}
+            >
+              Home
+            </li>
+            <li
+              className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
+              onClick={() => navigate("/about")}
+            >
+              About us
+            </li>
+            <li
+              className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
+              onClick={() => navigate("/program")}
+            >
+              Program
+            </li>
+          </ul>
         </div>
       </div>
-      <div className="flex  w-full h-20 justify-start items-center mt-10 mb-16">
-        <button
-          className="bg-black rounded-[3rem] h-full p-6 hover:bg-button-hover transition duration-500"
-          onClick={toggleLoginModal}
-        >
-          <p className="text-white text-sm">Join the SE Family</p>
-        </button>
-      </div>
-      <div className="text-black text-sm">
+      <button
+        className="bg-black-background rounded-[3rem] h-full p-6 hover:bg-button-hover transition duration-500 mb-10"
+        onClick={toggleLoginModal}
+      >
+        <p className="text-white text-sm">Join the SE Family</p>
+      </button>
+      <div className="text-black text-[0.65rem]">
         © {new Date().getFullYear()}{" "}
-        <span className="text-primary">Ko-Kwan Mongkholtham.</span> All Rights
+        <span className="text-primary">Mesan Tech.</span> All Rights
         Reserved.
       </div>
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
