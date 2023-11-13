@@ -8,6 +8,7 @@ import AboutIcon from './AboutIcon.svg';
 import CloseIcon from './CloseIcon.svg';
 import ReservationIcon from './ReservationIcon.svg';
 import ConnectionsIcon from './ConnectionIcon.svg';
+import TransBurgerIcon from './TransitionBurgerIconButton.jsx';
 
 export { 
   BurgerIcon,
@@ -19,5 +20,6 @@ export {
   AboutIcon,
   CloseIcon,
   ReservationIcon,
-  ConnectionsIcon
+  ConnectionsIcon,
+  TransBurgerIcon,
 };

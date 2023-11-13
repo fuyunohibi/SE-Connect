@@ -92,12 +92,14 @@ const Navbar = () => {
       className="fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
       z-50 h-16
       sm:mx-32 
-      md:top-2 md:bottom-auto md:mx-5 md:h-20 md:rounded-[2rem]"
+      md:top-2 md:bottom-auto md:mx-5 md:h-18 md:rounded-[4rem]
+      md:hidden
+      "
     >
       <button
-        className="absolute left-3 flex 
-          w-12 h-12 rounded-full
-          md:w-16 md:h-16 bg-black-background
+        className="absolute left-2 flex 
+          w-12 h-12 rounded-full 
+          md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] p-1
         "
         onClick={toggleLoginModal}
       >
@@ -109,12 +111,10 @@ const Navbar = () => {
       </button>
       <button
         onClick={toggleMenu}
-        className={`absolute right-3 flex justify-center items-center bg-black-background rounded-full
+        className={`absolute right-2 flex justify-center items-center bg-black-background rounded-full
           hover:bg-button-hover transition duration-500 hover:rotate-90
           h-12 w-12 p-[0.95rem]
-          md:h-16 md:w-16  ${
-            isLaptop && isMenuOpen ? "md:p-[1.5rem]" : "md:p-[1.4rem]"
-          }`}
+          md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] md:p-[1.25rem] `}
       >
         <img
           src={isLaptop && isMenuOpen ? CloseIcon : BurgerIcon}
@@ -123,8 +123,12 @@ const Navbar = () => {
         />
       </button>
       {isLaptop
-        ? isMenuOpen && <LargeMenuModal onClick={toggleMenu} onClose={toggleMenu} />
-        : isMenuOpen && <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu}/>}
+        ? isMenuOpen && (
+            <LargeMenuModal onClick={toggleMenu} onClose={toggleMenu} />
+          )
+        : isMenuOpen && (
+            <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu} />
+          )}
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </nav>
   );
@@ -181,7 +185,7 @@ const LargeMenuModal = ({ onClick, onClose }) => {
   const navigate = useNavigate();
   return (
     <>
-      <div className="fixed slide-from-top grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-24 px-3 py-3 bg-white h-64 shadow-md rounded-[2rem]">
+      <div className="fixed slide-from-top grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-20 px-3 py-3 bg-white h-64 shadow-md rounded-[2rem]">
         {newsData.map((news) => (
           <div className="relative flex flex-1 bg-black-background rounded-[1.75rem] aspect-w-16 aspect-h-9">
             <img
