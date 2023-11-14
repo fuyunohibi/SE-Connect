@@ -11,7 +11,6 @@ import {
   AboutIcon,
   BurgerIcon,
 } from "@/assets/icons/Navbar";
-import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import LoginModal from "@/components/global/Modals/LoginModal";
 import { ArrowIcon } from "@/assets/icons/NavigationIcon";
 import { KmitlDarkBackground } from '@/assets/images/Home';
@@ -22,6 +21,7 @@ import { newsData } from "@/data";
 import { NavLink } from "react-router-dom";
 import useUserStore from "@/store/useUserStore";
 import { AuthContext } from "@/components/AuthProvider";
+import { DefaultUserProfile } from '@/assets/images/Auth';
 
 const NavbarData = [
   {
@@ -133,8 +133,9 @@ const Home = () => {
 };
 
 const Navbar = ({ toggleMenu, toggleLoginModal }) => {
+  const { authState } = useContext(AuthContext);
   const { userProfile } = useUserStore();
-  console.log(userProfile.avatar);
+
   return (
     <nav
       className="hidden fixed slide-from-top mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
@@ -151,7 +152,9 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
         onClick={toggleLoginModal}
       >
         <img
-          src={userProfile.avatar}
+          src={
+            authState.isAuthenticated ? userProfile.avatar : DefaultUserProfile
+          }
           alt="My Profile"
           type="file"
           accept="image/*"
