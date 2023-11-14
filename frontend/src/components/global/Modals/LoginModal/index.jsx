@@ -9,10 +9,8 @@ const LoginModal = ({ onClose }) => {
   const { userProfile } = useUserStore();
   const navigate = useNavigate();
 
-  console.log("Logging out: ", userProfile.email); 
-
   const handleLogout = () => {
-    
+    console.log("Logging out: ", userProfile.email); 
     logout();
     Authentication.logout(userProfile.email)
       .then((response) => {
