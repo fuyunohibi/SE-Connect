@@ -53,6 +53,7 @@ def init_db():
     return connection.root()
 
 root = init_db()
+LOGIN_INFO = {"isLogin":False ,"user":""}
 
 # NOTE: Validate KMITL email
 def is_valid_kmitl_email(email: str) -> bool:
