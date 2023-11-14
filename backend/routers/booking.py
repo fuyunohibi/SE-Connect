@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from routers import login
-from ZODB import DB
-from ZODB.FileStorage import FileStorage
 from .database import init_db
+from enum import Enum
+from typing import Dict
+from datetime import datetime
 import transaction, secrets, string
 
 router = APIRouter()
@@ -13,6 +13,12 @@ root = init_db("booking_data.fs")
 valid_buildings = {"HM", "ECC", "Prathep"}
 
 
+class ReservationStatusEnum(str, Enum):
+    idle = "idle"
+    success = "success"
+    cancelled = "cancelled"
+
+
 def generate_random_string(length):
     alphabet = string.ascii_letters + string.digits
     random_string = "".join(secrets.choice(alphabet) for _ in range(length))
@@ -20,24 +26,17 @@ def generate_random_string(length):
 
 
 class BookingRequest(BaseModel):
+    status: ReservationStatusEnum = ReservationStatusEnum.idle
     room_id: str
     building: str
-    time_slot: dict
-    request_id: str
+    time_slot: Dict[str, str]
+    request_id: str = None
     date: str
-    booked_by: str
-    phone_number: str
+    booked_by: Dict[str, str]
 
-    def __init__(self, room_id, building, time_slot, date, phone_number):
-        super().__init__(
-            room_id=room_id,
-            building=building,
-            time_slot=time_slot,
-            request_id=generate_random_string(10),
-            date=date,
-            booked_by="",
-            phone_number=phone_number,
-        )
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.request_id = generate_random_string(10)
 
 
 def is_available(booking: BookingRequest):
@@ -46,6 +45,8 @@ def is_available(booking: BookingRequest):
 
     for request_id in root:
         existing_booking = root[request_id]
+        if existing_booking.status == ReservationStatusEnum.cancelled:
+            continue
         if existing_booking.date != booking.date:
             continue
         if (
@@ -63,22 +64,21 @@ def is_available(booking: BookingRequest):
 
 @router.post("/reservation/request", response_model=dict)
 async def request_booking(booking: BookingRequest):
-    if not login.LOGIN_INFO["isLogin"]:
-        raise HTTPException(status_code=401, detail="Unauthorized: Please Login First")
-
     if booking.time_slot["start_time"] >= booking.time_slot["end_time"]:
         raise HTTPException(status_code=400, detail="Bad Request: Invalid Time Slot")
 
-    if not is_available(booking):
+    if not is_available(booking) or booking.status == ReservationStatusEnum.success:
         raise HTTPException(status_code=409, detail="Conflict: Room is Unavailable")
 
-    booking.booked_by = login.LOGIN_INFO["user"]
+    booking.status = ReservationStatusEnum.success
     root[booking.request_id] = booking
     transaction.commit()
 
     start_time = booking.time_slot["start_time"]
     end_time = booking.time_slot["end_time"]
-    message = f"Building Name: {booking.building}, Room ID: {booking.room_id}, Start Time: {start_time}, End Time: {end_time}"
+    user_info = booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
+    iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
+    message = f"Building Name: {booking.building}, Room ID: {booking.room_id}, Date: {iso_date}, Start Time: {start_time}, End Time: {end_time}, Booked by: {user_info}, Status: {booking.status.name}"
 
     return {"message": message}
 
@@ -88,22 +88,11 @@ def get_all_rooms():
     room_list = []
     for request_id in root:
         booking = root[request_id]
-        booked_by = booking.booked_by
-        user_info = {
-            "email": booked_by.email,
-            "firstname": booked_by.firstname,
-            "lastname": booked_by.lastname,
-        }
+        user_info = booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
+        iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
         room_list.append(
             {
-                "Building": booking.building,
-                "Room ID": booking.room_id,
-                "Start Time": booking.time_slot["start_time"],
-                "End Time": booking.time_slot["end_time"],
-                "Request ID": booking.request_id,
-                "Date": booking.date,
-                "Booked By": user_info,
-                "phone_number": booking.phone_number,
+                booking
             }
         )
     return room_list
@@ -117,21 +106,19 @@ async def get_room(building: str, room_id: str):
     for request_id in root:
         booking = root[request_id]
         if booking.building == building and booking.room_id == room_id:
-            booked_by = booking.booked_by
-            user_info = {
-                "email": booked_by.email,
-                "firstname": booked_by.firstname,
-                "lastname": booked_by.lastname,
-            }
+            user_info = (
+                booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
+            )
+            iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
             booking_info = {
                 "Building": booking.building,
                 "Room ID": booking.room_id,
                 "Start Time": booking.time_slot["start_time"],
                 "End Time": booking.time_slot["end_time"],
                 "Request ID": booking.request_id,
-                "Date": booking.date,
+                "Date": iso_date,
                 "Booked By": user_info,
-                "phone_number": booking.phone_number,
+                "Status": booking.status,
             }
             room_bookings.append(booking_info)
     return room_bookings
@@ -142,21 +129,9 @@ def cancel_room(requestID: str):
     try:
         # Check if the data with the specified ID exists
         if requestID in root:
-            user_email = (
-                login.LOGIN_INFO["user"].email if login.LOGIN_INFO["user"] else None
-            )
-
-            if root[requestID].booked_by.email == user_email:
-                # Delete the data
-                del root[requestID]
-                transaction.commit()
-                transaction.begin()
-                return {"message": f"Request ID: {requestID} deleted successfully"}
-            else:
-                raise HTTPException(
-                    status_code=403,
-                    detail="You are not authorized to cancel this room reservation",
-                )
+            root[requestID].status = ReservationStatusEnum.cancelled
+            transaction.commit()
+            return {"message": f"Request ID: {requestID} cancelled successfully"}
         else:
             raise HTTPException(
                 status_code=404, detail=f"Request ID: {requestID} not found"
