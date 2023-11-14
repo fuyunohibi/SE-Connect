@@ -7,11 +7,12 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
+import Authentication from "@/lib/api/authentication";
 
-const RegisterPassword = () => {
+const LoginPassword = () => {
   const navigate = useNavigate();
 
-  const { email, clearEmail } = useUserStore();
+  const { userProfile, clearEmail } = useUserStore();
 
   const passwordRef = useRef(null);
   const [password, setPassword] = useState("");
@@ -21,21 +22,53 @@ const RegisterPassword = () => {
   const [shakePassword, setShakePassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
-  const handleContinueClick = (event) => {
-    event.preventDefault();
-    if (password.length >= 12) {
-      navigate("/");
-    } else {
-      setPasswordError("Password must be at least 12 characters long");
-      setShakePassword(true);
+  const isPasswordValid = () => {
+    return password.length >= 12;
+  };
 
-      setTimeout(() => {
-        setShakePassword(false);
-        if (passwordRef.current) {
-          passwordRef.current.focus();
-        }
-      }, 500);
+  const handleContinueClick = async (event) => {
+    event.preventDefault();
+    if (!isPasswordValid()) {
+      setPasswordError("Password must be at least 12 characters long");
+      triggerShakeAnimation();
+      return;
     }
+
+    console.log(
+      JSON.stringify({ email: userProfile.email, password: password })
+    );
+
+    Authentication.loginWithPassword(userProfile.email, password)
+      .then((res) => {
+        console.log("Response: ", res);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.error("Error: ", err);
+        handleRegistrationError(err);
+      });
+  };
+
+  const handleRegistrationError = (err) => {
+    if (err.response) {
+      setPasswordError(
+        err.response.data.detail || "Registration failed due to a server error."
+      );
+      triggerShakeAnimation();
+    } else {
+      setEmailError("An unexpected network error occurred. Please try again.");
+      triggerShakeAnimation();
+    }
+  };
+
+  const triggerShakeAnimation = () => {
+    setShakePassword(true);
+    setTimeout(() => {
+      setShakePassword(false);
+      if (passwordRef.current) {
+        passwordRef.current.focus();
+      }
+    }, 500);
   };
 
   const handlePasswordChange = (event) => {
@@ -49,7 +82,7 @@ const RegisterPassword = () => {
 
   const handleEditClick = () => {
     clearEmail();
-    navigate("/auth/login/identifier");
+    navigate("/auth/signup/identifier");
   };
 
   return (
@@ -81,7 +114,7 @@ const RegisterPassword = () => {
             autoComplete="email"
             autoFocus
             margin="normal"
-            value={email}
+            value={userProfile.email}
             onFocus={() => setEmailFocused(true)}
             onBlur={() => setEmailFocused(false)}
             sx={{
@@ -194,4 +227,4 @@ const RegisterPassword = () => {
   );
 };
 
-export default RegisterPassword;
+export default LoginPassword;

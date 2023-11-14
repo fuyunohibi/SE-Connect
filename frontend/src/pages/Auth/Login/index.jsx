@@ -4,6 +4,7 @@ import { TextField, Box, Container } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
+import Authentication from "@/lib/api/authentication";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,34 +12,66 @@ const Login = () => {
   const { userProfile, setEmail } = useUserStore();
 
   const emailRef = useRef(null);
+  const [emailNotExists, setEmailNotExists] = useState(false);
   const [shakeEmail, setShakeEmail] = useState(false);
   const [isEmailFocused, setEmailFocused] = useState(false);
   const [emailError, setEmailError] = useState("");
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-    console.log(userProfile.email);
-  };
 
   const isEmailValid = () => {
     return userProfile.email.includes("@kmitl.ac.th");
   };
 
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    setEmailNotExists(false);
+    console.log(userProfile.email);
+  };
+
   const handleContinueClick = (event) => {
     event.preventDefault();
-    if (isEmailValid()) {
-      navigate("/auth/login/password");
-    } else {
+    if (!isEmailValid()) {
       setEmailError("Email is not valid needs to be @kmitl.ac.th only");
-      setShakeEmail(true);
-
-      setTimeout(() => {
-        setShakeEmail(false);
-        if (emailRef.current) {
-          emailRef.current.focus();
-        }
-      }, 500);
+      triggerShakeAnimation();
+      return;
     }
+
+    Authentication.loginWithIdentifier(userProfile.email)
+      .then((res) => {
+        console.log("Response: ", res);
+        navigate("/auth/login/password");
+      })
+      .catch((err) => {
+        console.error("Error: ", err);
+        handleRegistrationError(err);
+      });
+  };
+
+  const handleRegistrationError = (err) => {
+    if (err.response) {
+      if (err.response.status === 404) {
+        setEmailNotExists(true);
+      } else {
+        setEmailError(
+          err.response.data.detail ||
+            "Registration failed due to a server error."
+        );
+        triggerShakeAnimation();
+      }
+    } else {
+      setEmailError("An unexpected network error occurred. Please try again.");
+      triggerShakeAnimation();
+    }
+  };
+
+
+  const triggerShakeAnimation = () => {
+    setShakeEmail(true);
+    setTimeout(() => {
+      setShakeEmail(false);
+      if (emailRef.current) {
+        emailRef.current.focus();
+      }
+    }, 500);
   };
 
   return (
@@ -60,6 +93,19 @@ const Login = () => {
         }}
       >
         <h1 className="text-3xl font-bold">Welcome Back</h1>
+        <p className="text-sm text-center w-[84%] mt-4">
+          {emailNotExists ? (
+            <span className="text-red-500 ">
+              Email does not exists in our database. If this is your email, you can sign up
+              instead.
+            </span>
+          ) : (
+            <span className="">
+              Note that KMITL Email may be required for signup. Your KMITL Email
+              will only be used to verify your identity for secuity purposes.
+            </span>
+          )}
+        </p>
         <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
             required

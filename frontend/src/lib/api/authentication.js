@@ -17,6 +17,7 @@ class Authentication {
         throw error;
       });
   }
+
   static registerWithPassword(password) {
     const config = {
       method: HTTP_METHODS.post,
@@ -45,7 +46,7 @@ class Authentication {
     const config = {
       method: HTTP_METHODS.post,
       url: `/auth/register/user-details`,
-      body: formData, 
+      body: formData,
     };
 
     return request(config)
@@ -58,14 +59,10 @@ class Authentication {
       });
   }
 
-  static loginWithIdentifier(options) {
-    const { email } = options;
-
+  static loginWithIdentifier(email) {
     const config = {
       method: HTTP_METHODS.post,
       url: `/auth/login/identifier?email=${encodeURIComponent(email)}`,
-      body: options.body,
-      token: options.token,
     };
 
     return request(config)
@@ -74,18 +71,21 @@ class Authentication {
       })
       .catch((error) => {
         console.error(error);
-        throw { ...error.response.data, ok: false };
+        throw error;
       });
   }
 
-  static loginWithPassword(options) {
-    const { password } = options;
-
+  static loginWithPassword(email, password) {
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/login/password?password=${encodeURIComponent(password)}`,
-      body: options.body,
-      token: options.token,
+      url: `/auth/login/password`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        email: email,
+        password: password,
+      },
     };
 
     return request(config)
@@ -94,7 +94,7 @@ class Authentication {
       })
       .catch((error) => {
         console.error(error);
-        throw { ...error.response.data, ok: false };
+        throw error;
       });
   }
 }

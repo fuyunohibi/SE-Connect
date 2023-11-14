@@ -80,7 +80,6 @@ async def register_password(password: str):
     user_register["password"] = hashed_password
     return {"message": "Password is valid"}
 
-
 UPLOAD_FOLDER = "profileImages"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -136,12 +135,19 @@ async def is_valid_email(email: EmailStr):
 
 
 @router.post("/auth/login/password", response_model=dict)
-async def is_valid_password(email: EmailStr, password: str):
+async def is_valid_password(login_data: UserLogin):
+  
+    print("Received login data:", login_data)
+    email = login_data.email
+    password = login_data.password
+  
     user_in_db = root.get(email)
+  
     if user_in_db and pwd_context.verify(password, user_in_db.password):
-        user_in_db.logged_in = True  # NOTE: Update logged-in status in DB
+        user_in_db.logged_in = True  # Update logged-in status in DB
         transaction.commit()
         return {"message": "Login successful"}
+
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
 

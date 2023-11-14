@@ -4,6 +4,7 @@ import { DefaultUserProfile } from "@/assets/images/Auth";
 const useUserStore = create((set) => ({
   userProfile: {
     email: "",
+    password: "",
     avatar: DefaultUserProfile,
     KmitlID: "",
     firstName: "",
@@ -23,6 +24,15 @@ const useUserStore = create((set) => ({
   clearEmail: () =>
     set((state) => ({
       userProfile: { ...state.userProfile, email: "" },
+    })),
+
+  setPassword: (email) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, password },
+    })),
+  clearPassword: () =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, password: "" },
     })),
 
   setKmitlID: (KmitlID) =>
