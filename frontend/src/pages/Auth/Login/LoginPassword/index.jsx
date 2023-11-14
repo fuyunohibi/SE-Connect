@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container, InputAdornment } from "@mui/material";
 import { CheckIcon } from "@/assets/icons/Auth";
@@ -14,7 +14,15 @@ const LoginPassword = () => {
   const navigate = useNavigate();
 
   const { setAuthToken } = useContext(AuthContext);
-  const { userProfile, clearEmail, setKmitlID, setYearOfStudy, setAvatar, setFirstName, setLastName } = useUserStore();
+  const {
+    userProfile,
+    clearEmail,
+    setKmitlID,
+    setYearOfStudy,
+    setAvatar,
+    setFirstName,
+    setLastName,
+  } = useUserStore();
 
   const passwordRef = useRef(null);
   const [password, setPassword] = useState("");
@@ -44,14 +52,16 @@ const LoginPassword = () => {
       .then((res) => {
         if (res.access_token) {
           console.log("Response: ", res);
-          setAuthToken(res.access_token); // NOTE: Set the token in the AuthContext
-          
+          setAuthToken(res.access_token); 
+
           const userData = res.user;
           setKmitlID(userData.ID);
           setYearOfStudy(userData.year_of_study);
           setAvatar(userData.profile_picture);
           setFirstName(userData.firstname);
           setLastName(userData.lastname);
+
+          localStorage.setItem("userProfile", JSON.stringify(userData));
 
           navigate("/");
         } else {

@@ -86,7 +86,8 @@ const Home = () => {
     console.log("toggleLargeScreenMenu");
     setIsMenuOpen(!isMenuOpen);
   }
-  console.log(userProfile.firstName);
+  console.log("HELLO", userProfile.firstName);
+
 
   return (
     <section className="relative flex flex-1 flex-col h-screen p-4">
