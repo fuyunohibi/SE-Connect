@@ -16,8 +16,7 @@ const LoginModal = ({ onClose }) => {
     logout();
     Authentication.logout(userProfile.email)
       .then((response) => {
-        console.log(response.message);
-        
+        console.log("Response: ", response);
         onClose();
       })
       .catch((error) => {

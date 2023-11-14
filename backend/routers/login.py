@@ -243,7 +243,6 @@ async def get_user_by_id(user_id: str):
 
 @router.get("/logout", response_model=dict)
 async def logout(email: EmailStr):
-    print
     user_in_db = root.get(email)
     if user_in_db and user_in_db.logged_in:
         transaction.commit()
