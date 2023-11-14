@@ -59,9 +59,11 @@ class Authentication {
   }
 
   static loginWithIdentifier(options) {
+    const { email } = options;
+
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/login/identifier`,
+      url: `/auth/login/identifier?email=${encodeURIComponent(email)}`,
       body: options.body,
       token: options.token,
     };
@@ -77,9 +79,11 @@ class Authentication {
   }
 
   static loginWithPassword(options) {
+    const { password } = options;
+
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/login/password`,
+      url: `/auth/login/password?password=${encodeURIComponent(password)}`,
       body: options.body,
       token: options.token,
     };
