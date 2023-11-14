@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, APIRouter, File, UploadFile, Form, status
-from pydantic import BaseModel, EmailStr, validator
+from fastapi import HTTPException, APIRouter, File, UploadFile, Form, status
+from pydantic import BaseModel, EmailStr
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
 from persistent import Persistent
 from passlib.context import CryptContext
 from typing import Optional
-import transaction, base64, uuid, os
+import transaction, uuid, os
 
 router = APIRouter()
 
