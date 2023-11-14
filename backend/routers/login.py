@@ -21,7 +21,6 @@ router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-<<<<<<< HEAD
 def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     to_encode = data.copy()
     if expires_delta:
@@ -32,8 +31,6 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
   
-=======
->>>>>>> d703f9704b727236bdef7f947f9f652fa3d982db
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -71,8 +68,6 @@ class UserResponse(BaseModel):
 
 
 root = init_db()
-LOGIN_INFO = {"isLogin": False, "user": ""}
-
 
 # NOTE: Validate KMITL email
 def is_valid_kmitl_email(email: str) -> bool:
@@ -176,7 +171,10 @@ async def is_valid_password(login_data: UserLogin):
     user_in_db = root.get(email)
 
     if user_in_db and pwd_context.verify(password, user_in_db.password):
-<<<<<<< HEAD
+
+        user_in_db.logged_in = True
+        transaction.commit()
+        
         access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": email}, expires_delta=access_token_expires
@@ -194,32 +192,13 @@ async def is_valid_password(login_data: UserLogin):
                 "profile_picture": user_in_db.profile_picture,
             },
         }
-=======
-        user_in_db.logged_in = True  # Update logged-in status in DB
-        LOGIN_INFO["isLogin"] = True
-        LOGIN_INFO["user"] = UserCreate(
-            email=user_in_db.email,
-            password=user_in_db.password,
-            firstname=user_in_db.firstname,
-            lastname=user_in_db.lastname,
-            ID=user_in_db.ID,
-            year_of_study=user_in_db.year_of_study,
-        )
-        transaction.commit()
-        return {"message": "Login successful"}
->>>>>>> d703f9704b727236bdef7f947f9f652fa3d982db
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
     )
 
 
-<<<<<<< HEAD
-
 @router.put("/update_password", response_model=dict)
-=======
-@router.put("/update-password", response_model=dict)
->>>>>>> d703f9704b727236bdef7f947f9f652fa3d982db
 async def update_password(email: EmailStr, new_password: str):
     user_in_db = root.get(email)
     if user_in_db:
@@ -264,11 +243,9 @@ async def get_user_by_id(user_id: str):
 
 @router.get("/logout", response_model=dict)
 async def logout(email: EmailStr):
+    print
     user_in_db = root.get(email)
     if user_in_db and user_in_db.logged_in:
-        user_in_db.logged_in = False  # NOTE: Update logged-in status in DB
-        LOGIN_INFO["isLogin"] = False
-        LOGIN_INFO["user"] = ""
         transaction.commit()
         return {"message": "Logged out successfully"}
     raise HTTPException(

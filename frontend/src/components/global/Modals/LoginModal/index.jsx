@@ -6,14 +6,15 @@ import Authentication from "@/lib/api/authentication";
 
 const LoginModal = ({ onClose }) => {
   const { authState, logout } = useContext(AuthContext);
-  const { UserProfile } = useUserStore();
+  const { userProfile } = useUserStore();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  console.log("Logging out: ", userProfile.email); 
 
-    // console.log("Logging out: ", UserProfile.email); 
-    Authentication.logout("65011338@kmitl.ac.th")
+  const handleLogout = () => {
+    
+    logout();
+    Authentication.logout(userProfile.email)
       .then((response) => {
         console.log(response.message);
         
