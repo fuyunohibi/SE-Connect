@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
@@ -21,6 +21,7 @@ import useCheckScreenSize from '@/hooks/useCheckScreenSize';
 import { newsData } from "@/data";
 import { NavLink } from "react-router-dom";
 import useUserStore from "@/store/useUserStore";
+import { AuthContext } from "@/components/AuthProvider";
 
 const NavbarData = [
   {
@@ -65,27 +66,28 @@ const NavbarData = [
     icon: HomeIcon,
     link: "/events",
   },
-  {
-    id: 8,
-    name: "Reservation",
-    icon: ReservationIcon,
-    link: "/reservation",
-  },
 ];
 
 
 const Home = () => {
+  const { authState } = useContext(AuthContext);
+  const { userProfile } = useUserStore();
+
   const isLaptop = useCheckScreenSize('laptop');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const toggleLoginModal = () => {
+
     console.log("toggleLoginModal");
     setIsLoginModalOpen(!isLoginModalOpen);
   };
+
   const toggleLargeScreenModal = () => {
     console.log("toggleLargeScreenMenu");
     setIsMenuOpen(!isMenuOpen);
   }
+  console.log(userProfile.firstName);
+
   return (
     <section className="relative flex flex-1 flex-col h-screen p-4">
       <SELogo className="absolute left-0 right-0 lg:scale-125" />
@@ -107,7 +109,12 @@ const Home = () => {
           className="absolute bottom-16 left-12 bg-white rounded-[3rem] p-6 hover:bg-button-hover transition duration-500 mb-10 textblack hover:text-white"
           onClick={toggleLoginModal}
         >
-          <p className=" text-sm">Join the SE Family!</p>
+          {authState.isAuthenticated ? (
+            <p className=" text-sm">Welcome back, {userProfile.firstName}!</p>
+          ) : (
+            <p className=" text-sm">Join the SE Family!</p>
+          )}
+          
         </button>
       )}
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
@@ -170,6 +177,21 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
 
 
 const SmallMenuModal = ({ onClick, onClose }) => {
+  const { authState } = useContext(AuthContext);
+
+  const computedNavbarData = [
+    ...NavbarData,
+    ...(authState.isAuthenticated
+      ? [
+          {
+            id: 8,
+            name: "Reservation",
+            icon: ReservationIcon,
+            link: "/room-reservation",
+          },
+        ]
+      : []),
+  ];
   return (
     <div
       className="hidden fixed slide-from-bottom mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[2rem] shadow-md
@@ -182,7 +204,7 @@ const SmallMenuModal = ({ onClick, onClose }) => {
           md:grid-cols-4 lg:gap-x-36
         "
         >
-          {NavbarData.map((item) => (
+          {computedNavbarData.map((item) => (
             <NavLink
               key={item.id}
               id={item.id}
@@ -245,7 +267,10 @@ const LargeMenuModal = ({ onClick, onClose }) => {
           </div>
         ))}
       </div>
-      <SmallMenuModal onClick={onClick} onClose={onClose} />
+      <SmallMenuModal
+        onClick={onClick}
+        onClose={onClose}
+      />
     </>
   );
 };

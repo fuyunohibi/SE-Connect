@@ -97,6 +97,38 @@ class Authentication {
         throw error;
       });
   }
+  
+  static logout(email) {
+    const config = {
+      method: HTTP_METHODS.get, 
+      url: `/logout?email=${encodeURIComponent(email)}`,
+    };
+
+    return request(config)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+  }
+
+  static getUserById(userId) {
+    const config = {
+      method: HTTP_METHODS.get,
+      url: `/users/${encodeURIComponent(userId)}`,
+    };
+
+    return request(config)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+  }
 }
 
 export default Authentication;

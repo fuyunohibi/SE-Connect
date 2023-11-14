@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Box, Container, InputAdornment } from "@mui/material";
 import { CheckIcon } from "@/assets/icons/Auth";
@@ -8,11 +8,13 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 import Authentication from "@/lib/api/authentication";
+import { AuthContext } from "@/components/AuthProvider";
 
 const LoginPassword = () => {
   const navigate = useNavigate();
 
-  const { userProfile, clearEmail } = useUserStore();
+  const { setAuthToken } = useContext(AuthContext);
+  const { userProfile, clearEmail, setKmitlID, setYearOfStudy, setAvatar, setFirstName, setLastName } = useUserStore();
 
   const passwordRef = useRef(null);
   const [password, setPassword] = useState("");
@@ -40,8 +42,22 @@ const LoginPassword = () => {
 
     Authentication.loginWithPassword(userProfile.email, password)
       .then((res) => {
-        console.log("Response: ", res);
-        navigate("/");
+        if (res.access_token) {
+          console.log("Response: ", res);
+          setAuthToken(res.access_token); // NOTE: Set the token in the AuthContext
+          
+          const userData = res.user;
+          setKmitlID(userData.ID);
+          setYearOfStudy(userData.year_of_study);
+          setAvatar(userData.profile_picture);
+          setFirstName(userData.firstname);
+          setLastName(userData.lastname);
+
+          navigate("/");
+        } else {
+          // NOTE: Handle the case where no token is returned
+          console.error("Login successful, but no token received.");
+        }
       })
       .catch((err) => {
         console.error("Error: ", err);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import {
@@ -12,11 +12,10 @@ import {
   CloseIcon,
   AboutIcon,
 } from "@/assets/icons/Navbar";
-import { ArrowIcon } from "@/assets/icons/NavigationIcon";
-import { newsData } from "@/data";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import LoginModal from "@/components/global/Modals/LoginModal";
 import { NavLink } from "react-router-dom";
+import { AuthContext } from "@/components/AuthProvider";
 
 const NavbarData = [
   {
@@ -64,8 +63,10 @@ const NavbarData = [
 ];
 
 const Navbar = () => {
-  const isLaptop = useCheckScreenSize("laptop");
 
+  const { authState } = useContext(AuthContext);
+
+  const isLaptop = useCheckScreenSize("laptop");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -78,19 +79,19 @@ const Navbar = () => {
     setIsLoginModalOpen(!isLoginModalOpen);
   };
 
-  console.log("isLaptop:", isLaptop);
-  console.log("isMenuOpen:", isMenuOpen);
-
-  const isLoggedIn = localStorage.getItem("token") !== null;
-
-  if (isLoggedIn) {
-    NavbarData.push({
-      id: 8,
-      name: "Reservation",
-      icon: ReservationIcon,
-      link: "/room-reservation",
-    });
-  }
+  const computedNavbarData = [
+    ...NavbarData,
+    ...(authState.isAuthenticated
+      ? [
+          {
+            id: 8,
+            name: "Reservation",
+            icon: ReservationIcon,
+            link: "/room-reservation",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <nav
@@ -128,14 +129,18 @@ const Navbar = () => {
         />
       </button>
       {isMenuOpen && (
-        <SmallMenuModal onClick={toggleMenu} onClose={toggleMenu} />
+        <SmallMenuModal
+          onClick={toggleMenu}
+          onClose={toggleMenu}
+          navbarData={computedNavbarData}
+        />
       )}
       {isLoginModalOpen ? <LoginModal onClose={toggleLoginModal} /> : null}
     </nav>
   );
 };
 
-const SmallMenuModal = ({ onClick, onClose }) => {
+const SmallMenuModal = ({ onClick, onClose, navbarData }) => {
   return (
     <div
       className="fixed slide-from-bottom mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[2rem] shadow-md
@@ -148,7 +153,7 @@ const SmallMenuModal = ({ onClick, onClose }) => {
           md:grid-cols-4 lg:gap-x-36
         "
         >
-          {NavbarData.map((item) => (
+          {navbarData.map((item) => (
             <NavLink
               key={item.id}
               id={item.id}

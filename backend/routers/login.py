@@ -1,15 +1,35 @@
+import jwt
+import datetime
 from fastapi import HTTPException, APIRouter, File, UploadFile, Form, status
 from pydantic import BaseModel, EmailStr
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
 from persistent import Persistent
 from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
 from typing import Optional
 import transaction, uuid, os
+
+# SECRET: secure key in production
+SECRET_KEY = "$/se-connect/hello-world-from-mesan/14-11-2023$"  
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+  
 
 class UserCreate(BaseModel):
     email: EmailStr  
@@ -137,19 +157,32 @@ async def is_valid_email(email: EmailStr):
 
 @router.post("/auth/login/password", response_model=dict)
 async def is_valid_password(login_data: UserLogin):
-  
-    print("Received login data:", login_data)
     email = login_data.email
     password = login_data.password
-  
+
     user_in_db = root.get(email)
-  
+
     if user_in_db and pwd_context.verify(password, user_in_db.password):
-        user_in_db.logged_in = True  # Update logged-in status in DB
-        transaction.commit()
-        return {"message": "Login successful"}
+        access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": email}, expires_delta=access_token_expires
+        )
+        return {
+            "message": "Login successful",
+            "access_token": access_token, 
+            "token_type": "bearer",
+            "user": {
+                "email": user_in_db.email,
+                "firstname": user_in_db.firstname,
+                "lastname": user_in_db.lastname,
+                "ID": user_in_db.ID,
+                "year_of_study": user_in_db.year_of_study,
+                "profile_picture": user_in_db.profile_picture,
+            },
+        }
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
 
 
 @router.put("/update_password", response_model=dict)
