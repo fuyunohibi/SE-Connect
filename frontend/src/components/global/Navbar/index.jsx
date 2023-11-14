@@ -61,12 +61,6 @@ const NavbarData = [
     icon: HomeIcon,
     link: "/events",
   },
-  {
-    id: 8,
-    name: "Reservation",
-    icon: ReservationIcon,
-    link: "/reservation",
-  },
 ];
 
 const Navbar = () => {
@@ -86,6 +80,17 @@ const Navbar = () => {
 
   console.log("isLaptop:", isLaptop);
   console.log("isMenuOpen:", isMenuOpen);
+
+  const isLoggedIn = localStorage.getItem("token") !== null;
+
+  if (isLoggedIn) {
+    NavbarData.push({
+      id: 8,
+      name: "Reservation",
+      icon: ReservationIcon,
+      link: "/room-reservation",
+    });
+  }
 
   return (
     <nav
@@ -176,6 +181,5 @@ const SmallMenuModal = ({ onClick, onClose }) => {
     </div>
   );
 };
-
 
 export default Navbar;
