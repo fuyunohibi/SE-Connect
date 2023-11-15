@@ -33,12 +33,14 @@ const RegisterUserDetails = () => {
   const [isYearOfStudyFocused, setYearOfStudyFocused] = useState(false);
   const [isFirstNameFocused, setFirstNameFocused] = useState(false);
   const [isLastNameFocused, setLastNameFocused] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   const handleAvatarChange = (event) => {
     if (event.target.files && event.target.files[0]) {
+      const imageUrl = URL.createObjectURL(event.target.files[0]);
+      setAvatarUrl(imageUrl); // Set the temporary URL to state
       setAvatar(event.target.files[0]);
     }
-    console.log(userProfile.avatar);
   };
 
   const handleFirstNameChange = (event) => {
@@ -110,6 +112,16 @@ const RegisterUserDetails = () => {
     }
   }, [userProfile.email, setKmitlID]);
 
+  // useEffect(() => {
+  //   return () => {
+  //     // Revoke the object URL when the component is unmounted
+  //     if (avatarUrl) {
+  //       URL.revokeObjectURL(avatarUrl);
+  //     }
+  //   };
+  // }, [avatarUrl]);
+
+
   return (
     <Container component="main" maxWidth="xs">
       <div className="flex w-full justify-center items-center h-8  mt-10">
@@ -148,7 +160,7 @@ const RegisterUserDetails = () => {
             >
               <Avatar
                 alt="Profile Picture"
-                src={userProfile.avatar}
+                src={avatarUrl} // Use the temporary URL or default logo
                 sx={{ width: 56, height: 56 }}
               />
             </IconButton>

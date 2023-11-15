@@ -6,19 +6,13 @@ from ZODB import DB, FileStorage
 import transaction
 from contextlib import contextmanager
 
-# Define CORS settings
-origins = [
-    "http://127.0.0.1:3000",  
-]
-
-
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="profileImages"), name="static")
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers

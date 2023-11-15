@@ -37,21 +37,21 @@ class Authentication {
   }
 
   static registerUserDetails(registration_id, firstname, lastname, ID, year_of_study, profile_picture) {
-    
+    const formData = new FormData();
+    formData.append("registration_id", registration_id);
+    formData.append("firstname", firstname);
+    formData.append("lastname", lastname);
+    formData.append("ID", ID);
+    formData.append("year_of_study", year_of_study);
+    formData.append("profile_picture", profile_picture);
+
     const config = {
       method: HTTP_METHODS.post,
       url: `/auth/signup/user-details`,
       headers: {
-        "Content-Type": "application/json",
+        // No need to set Content-Type for FormData, it will be set automatically
       },
-      body: {
-        registration_id: registration_id,
-        firstname: firstname,
-        lastname: lastname,
-        ID: ID,
-        year_of_study: year_of_study,
-        profile_picture: profile_picture,
-      }
+      body: formData,
     };
 
     return request(config)
@@ -62,9 +62,8 @@ class Authentication {
         console.error(error);
         throw error;
       });
-
-
   }
+
 
   static loginWithIdentifier(email) {
     const config = {
