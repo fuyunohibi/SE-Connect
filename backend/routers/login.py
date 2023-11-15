@@ -180,7 +180,8 @@ async def register_user_details(
         
         user_in_db = root.get(email)
         
-        user_in_db.logged_in = True
+        if user_in_db and pwd_context.verify(password, user_in_db.password):
+          user_in_db.logged_in = True
         transaction.commit()
 
         access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

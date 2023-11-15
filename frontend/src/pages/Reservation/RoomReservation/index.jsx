@@ -5,6 +5,8 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddIcon from "@mui/icons-material/Add";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import { DefaultUserProfile } from "@/assets/images/Auth";
+import useCheckScreenSize from "@/hooks/useCheckScreenSize";
+import PhoneIcon from "@mui/icons-material/Phone";
 
 
 const RoomReservationSidebarData = [
@@ -17,188 +19,124 @@ const RoomReservationSidebarData = [
   {
     id: 2,
     name: "Create",
-    icon: AddIcon, 
-    link: "/create/room-reservation", 
+    icon: AddIcon,
+    link: "/create/room-reservation",
   },
 ];
 
 const RoomReservation = () => {
-
-  let content;
-  if (location.pathname === "/room-reservation") {
-    content = <DashboardContent />;
-  } else if (location.pathname === "/create/room-reservation") {
-    content = <CreateRoomReservationContent />;
-  }
-
+  const isTablet = useCheckScreenSize("tablet");
   return (
-    <>
-      <SideBar />
-      <TitleBar />
-      <div className="flex bg-white ml-32">{content}</div>
-    </>
-  );
-};
-const TitleBar = () => {
+    <div className=" top-0 left-0 right-0 fixed flex flex-col">
+      <div className="flex flex-row">
+        {isTablet ? <SideBar /> : null}
+        <div className="w-full">
+          <div 
+            className="px-7 pt-10 pb-6
 
-  const location = useLocation();
-
-  let title;
-  if (location.pathname === "/room-reservation") {
-    title = "Room Reservation";
-  } else if (location.pathname === "/create/room-reservation") {
-    title = "Create Reservation";
-  } else {
-    title = "No Title"; 
-  }
-
-  return (
-    <nav className="fixed z-10 w-[100%] pl-12 pt-10 pb-5 pr-[10.5rem] flex justify-between items-start top-0 left-32 right-0 bg-white">
-      <h1 className="text-primary text-xl font-bold">{title}</h1>
-      <div className="flex space-x-3">
-        <p className="text-sm font-semibold ">Hello, John</p>
-        <div className="rounded-full h-12 w-12 -mt-3">
-          <img src={DefaultUserProfile} alt="User Profile" />
+          ">
+            <h1 className="text-primary text-xl font-bold">Room Reservation</h1>
+          </div>
+          <DashboardContent />
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
 
-const CreateRoomReservationContent = () => {
+export default RoomReservation;
+
+
+
+const TitleBar = ({ title, date }) => {
   return (
-    <div className="fixed flex h-full bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center w-[52rem] mb-6">
-          <h1 className="text-xl font-semibold  text-gray-500">New</h1>
-          <p className="text-sm font-semibold">15 Nov, 2023</p>
-        </div>
-        <div className="relative z-0 bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
-          Confirm
-          <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
-        </div>
-        <div className="reservation-list flex flex-col space-y-2 mt-5">
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
-        </div>
-      </div>
+    <div className="flex justify-between items-end pb-6">
+      <h1 className="text-lg font-semibold  text-gray-500 ">{title}</h1>
+      <p className="text-sm font-semibold">{date}</p>
     </div>
   );
 };
 
 const DashboardContent = () => {
-  return (
-    <div className="fixed flex h-full bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center w-[52rem] mb-6">
-          <h1 className="text-xl font-semibold  text-gray-500">Reserved</h1>
-          <p className="text-sm font-semibold">15 Nov, 2023</p>
-        </div>
-        <div className="relative z-0 bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
-          Confirm
-          <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
-        </div>
-        <div className="reservation-list flex flex-col space-y-2 mt-5">
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
-          <ReservationCard
-            firstName="John"
-            lastName="Doe"
-            mobileNo="080-594-5005"
-            yearOfStudy="2nd year"
-            startTime="18:00"
-            endTime="21:00"
-            building="HM"
-            roomID="806"
-            reservationStatus="Active"
-          />
+  let content;
+  if (location.pathname === "/room-reservation") {
+    content = (
+      <div className="flex flex-col w-full">
+        <TitleBar title="Reserved" date="15 Nov, 2023" />
+        <div
+          className="reservation-list flex flex-col space-y-6 items-start
+            md:flex-row md:justify-between md:space-x-6 md:space-y-0
+          "
+        >
+          <div className="space-y-2 w-full">
+            <ReservationCard
+              firstName="John"
+              lastName="Doe"
+              mobileNo="080-594-5005"
+              yearOfStudy="2nd year"
+              startTime="18:00"
+              endTime="21:00"
+              building="HM"
+              roomID="806"
+              reservationStatus="Active"
+            />
+            <ReservationCard
+              firstName="John"
+              lastName="Doe"
+              mobileNo="080-594-5005"
+              yearOfStudy="2nd year"
+              startTime="18:00"
+              endTime="21:00"
+              building="HM"
+              roomID="806"
+              reservationStatus="Active"
+            />
+            <ReservationCard
+              firstName="John"
+              lastName="Doe"
+              mobileNo="080-594-5005"
+              yearOfStudy="2nd year"
+              startTime="18:00"
+              endTime="21:00"
+              building="HM"
+              roomID="806"
+              reservationStatus="Active"
+            />
+          </div>
+          <div className="flex items-start min-w-[32rem] md:min-w-[20rem] lg:min-w-[24rem]">
+            <BookingDetailsCard />
+          </div>
         </div>
       </div>
+    );
+  } else if (location.pathname === "/create/room-reservation") {
+    content = (
+      <div className="flex flex-col w-full">
+        <TitleBar title="Create a Reservation" date="15 Nov, 2023" />
+        <div
+          className="reservation-list flex flex-col space-y-6 items-start
+            md:flex-row md:justify-between md:space-x-6 md:space-y-0
+          "
+        >
+          <div className="w-full space-y-2">
+            <DateSelectionCard />
+            <TimeSelectionCard />
+            <MobileInputCard />
+          </div>
+          <div className="flex w-full">
+            <BookingDetailsCard />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-[#e9ebef] rounded-t-[3rem] px-10 py-8 w-full">
+      {content}
     </div>
   );
 };
-
-const SideBar = () => {
-  const getNavLinkClass = (isActive) => {
-    return `flex flex-col justify-center items-center rounded-xl w-16 h-16 transition-all duration-300 ease-in-out 
-          ${
-            isActive
-              ? "bg-primary text-white scale-110"
-              : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
-          }`;
-  };
-
-  return (
-    <nav className="fixed px-8 py-10 space-y-7 rounded-br-[3rem]">
-      <div className="w-16 h-16">
-        <img src={SoftwareEngineeringLogo} alt="Logo" />
-      </div>
-      {RoomReservationSidebarData.map((item) => (
-        <NavLink
-          key={item.id}
-          id={item.id}
-          to={item.link}
-          className={({ isActive }) => getNavLinkClass(isActive)}
-        >
-          <item.icon />
-        </NavLink>
-      ))}
-    </nav>
-  );
-};
-
-
 
 const ReservationCard = ({
   firstName,
@@ -212,7 +150,9 @@ const ReservationCard = ({
   reservationStatus,
 }) => {
   return (
-    <div className="flex justify-between w-[36rem] pr-28 px-8 py-6  rounded-xl bg-white">
+    <div 
+      className="flex justify-between px-8 py-6 rounded-xl bg-white"
+    >
       <div>
         <p className="text-gray-500 font-semibold">Name</p>
         <div className="flex justify-between space-x-4 mt-4">
@@ -254,4 +194,131 @@ const ReservationCard = ({
   );
 };
 
-export default RoomReservation;
+const DateSelectionCard = () => {
+  return (
+    <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
+      <h1 className=" font-semibold  text-black mb-3">
+        Select Date <span className="text-gray-500">- November 2023</span>
+      </h1>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">Fri</p>
+          <span className="font-bold text-white">07</span>
+        </div>
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">Mon</p>
+          <span className="font-bold text-white text-center">10</span>
+        </div>
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">Tue</p>
+          <span className="font-bold text-white">11</span>
+        </div>
+      </div>
+    </div>
+  );
+} 
+
+const TimeSelectionCard = () => {
+  return (
+    <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
+      <h1 className=" font-semibold  text-black mb-3">
+        Select Time
+      </h1>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">08 - 10 AM</p>
+        </div>
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">11 - 12 AM</p>
+        </div>
+        <div className="bg-primary px-6 py-3 rounded-md text-center">
+          <p className="text-white">01 - 02 PM</p>
+        </div>
+      </div>
+    </div>
+  );
+}; 
+
+const MobileInputCard = () => {
+  return (
+    <div className="flex flex-row justify-start items-start bg-white px-5 py-6 rounded-xl">
+      <div className="mr-5">
+        <PhoneIcon />
+      </div>
+      <div>
+        <h1 className=" font-semibold  text-black">Mobile Number</h1>
+        <p className="   text-gray-500">
+          Enter the number on which you which to reserve the room
+        </p>
+        <input
+          type="text"
+          className="w-full h-10 mt-3 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+      </div>
+    </div>
+  );
+};
+
+const BookingDetailsCard = () => {
+  return (
+    <div className="flex flex-1 flex-col bg-[#fafafa] rounded-xl">
+      <div className="flex flex-1 flex-col justify-start items-start bg-white px-5 py-6 rounded-xl rounded-b-[3rem]">
+        <h1 className="font-semibold  text-black">Booking Details</h1>
+        <hr className="w-full bg-gray-300 my-3" />
+        <div className="space-y-3">
+          <div>
+            <p className="font-semibold text-gray-500">Building & Room</p>
+            <h1 className=" font-semibold  text-black">HM-806</h1>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-500">Date & Time</p>
+            <p className=" font-semibold  text-black">
+              18:00 - 21:00, 15 Nov 2023
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-500">Booked for</p>
+            <div className="w-fit px-3 py-1 pb-2 bg-red-200 text-center text-primary rounded-[3rem] mt-2">
+              John
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="bg-[#fafafa] px-5 py-6 rounded-xl">
+        <button className="text-center bg-primary text-white px-6 py-3 rounded-xl w-full">
+          Confirm
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+const SideBar = () => {
+  const getNavLinkClass = (isActive) => {
+    return `flex flex-col justify-center items-center rounded-xl w-16 h-16 transition-all duration-300 ease-in-out
+          ${
+            isActive
+              ? "bg-primary text-white scale-110"
+              : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+          }`;
+  };
+
+  return (
+    <nav className="px-8 py-10 space-y-7 rounded-br-[3rem] ">
+      <div className="w-16 h-16">
+        <img src={SoftwareEngineeringLogo} alt="Logo" />
+      </div>
+      {RoomReservationSidebarData.map((item) => (
+        <NavLink
+          key={item.id}
+          id={item.id}
+          to={item.link}
+          className={({ isActive }) => getNavLinkClass(isActive)}
+        >
+          <item.icon />
+        </NavLink>
+      ))}
+    </nav>
+  );
+};
