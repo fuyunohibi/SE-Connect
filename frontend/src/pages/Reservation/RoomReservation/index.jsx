@@ -124,13 +124,13 @@ const DashboardContent = () => {
           </div>
           <div className="flex w-full">
             <BookingDetailsCard
+              showButton
               building={selectedBuilding ? selectedBuilding.name : ""}
               room={selectedRoom ? selectedRoom.name : ""}
               date={selectedDate ? selectedDate.format("DD MMM, YYYY") : ""}
               startTime={selectedTime ? selectedTime.startTime : ""}
               endTime={selectedTime ? selectedTime.endTime : ""}
               bookedBy={phoneNumber}
-              showButton={false}
             />
           </div>
         </div>
