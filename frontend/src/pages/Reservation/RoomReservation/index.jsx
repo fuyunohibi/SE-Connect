@@ -1,20 +1,11 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddIcon from "@mui/icons-material/Add";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import { DefaultUserProfile } from "@/assets/images/Auth";
-import {
-  BurgerIcon,
-  HomeIcon,
-  AdmissionsIcon,
-  NewsIcon,
-  ConnectionsIcon,
-  ProgramsIcon,
-  ReservationIcon,
-  CloseIcon,
-  AboutIcon,
-} from "@/assets/icons/Navbar";
-import { NavLink } from "react-router-dom";
+
 
 const RoomReservationSidebarData = [
   {
@@ -32,20 +23,38 @@ const RoomReservationSidebarData = [
 ];
 
 const RoomReservation = () => {
+
+  let content;
+  if (location.pathname === "/room-reservation") {
+    content = <DashboardContent />;
+  } else if (location.pathname === "/create/room-reservation") {
+    content = <CreateRoomReservationContent />;
+  }
+
   return (
     <>
       <SideBar />
       <TitleBar />
-      <div className="flex bg-white ml-32">
-        <Dashboard />
-      </div>
+      <div className="flex bg-white ml-32">{content}</div>
     </>
   );
 };
 const TitleBar = () => {
+
+  const location = useLocation();
+
+  let title;
+  if (location.pathname === "/room-reservation") {
+    title = "Room Reservation";
+  } else if (location.pathname === "/create/room-reservation") {
+    title = "Create Reservation";
+  } else {
+    title = "No Title"; 
+  }
+
   return (
     <nav className="fixed z-10 w-[100%] pl-12 pt-10 pb-5 pr-[10.5rem] flex justify-between items-start top-0 left-32 right-0 bg-white">
-      <h1 className="text-primary text-xl font-bold">Room Reservation</h1>
+      <h1 className="text-primary text-xl font-bold">{title}</h1>
       <div className="flex space-x-3">
         <p className="text-sm font-semibold ">Hello, John</p>
         <div className="rounded-full h-12 w-12 -mt-3">
@@ -56,7 +65,59 @@ const TitleBar = () => {
   );
 };
 
-const Dashboard = () => {
+const CreateRoomReservationContent = () => {
+  return (
+    <div className="fixed flex h-full bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center w-[52rem] mb-6">
+          <h1 className="text-xl font-semibold  text-gray-500">New</h1>
+          <p className="text-sm font-semibold">15 Nov, 2023</p>
+        </div>
+        <div className="relative z-0 bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
+          Confirm
+          <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
+        </div>
+        <div className="reservation-list flex flex-col space-y-2 mt-5">
+          <ReservationCard
+            firstName="John"
+            lastName="Doe"
+            mobileNo="080-594-5005"
+            yearOfStudy="2nd year"
+            startTime="18:00"
+            endTime="21:00"
+            building="HM"
+            roomID="806"
+            reservationStatus="Active"
+          />
+          <ReservationCard
+            firstName="John"
+            lastName="Doe"
+            mobileNo="080-594-5005"
+            yearOfStudy="2nd year"
+            startTime="18:00"
+            endTime="21:00"
+            building="HM"
+            roomID="806"
+            reservationStatus="Active"
+          />
+          <ReservationCard
+            firstName="John"
+            lastName="Doe"
+            mobileNo="080-594-5005"
+            yearOfStudy="2nd year"
+            startTime="18:00"
+            endTime="21:00"
+            building="HM"
+            roomID="806"
+            reservationStatus="Active"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DashboardContent = () => {
   return (
     <div className="fixed flex h-full bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
       <div className="flex flex-col">
@@ -110,10 +171,14 @@ const Dashboard = () => {
 
 const SideBar = () => {
   const getNavLinkClass = (isActive) => {
-    return isActive
-      ? "flex flex-col justify-center items-center rounded-xl w-16 h-16 bg-primary text-white" // Active State
-      : "flex flex-col justify-center items-center rounded-xl w-16 h-16 text-gray-400"; // Inactive State
+    return `flex flex-col justify-center items-center rounded-xl w-16 h-16 transition-all duration-300 ease-in-out 
+          ${
+            isActive
+              ? "bg-primary text-white scale-110"
+              : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+          }`;
   };
+
   return (
     <nav className="fixed px-8 py-10 space-y-7 rounded-br-[3rem]">
       <div className="w-16 h-16">
@@ -132,6 +197,8 @@ const SideBar = () => {
     </nav>
   );
 };
+
+
 
 const ReservationCard = ({
   firstName,

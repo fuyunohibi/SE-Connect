@@ -26,7 +26,7 @@ const Main = () => {
     location.pathname === "/auth/signup/identifier" || location.pathname === "/auth/signup/password" || 
     location.pathname === "/auth/signup/user-details";
 
-  const isRoomReservation = location.pathname === "/room-reservation";
+  const isRoomReservation = location.pathname === "/room-reservation" || location.pathname === "/create/room-reservation";
 
   return (
     <main id="main-container" className="mb-32 md:mb-0">
@@ -46,6 +46,14 @@ const Main = () => {
         />
         <Route
           path="/room-reservation"
+          element={
+            <ProtectedRoute>
+              <RoomReservation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create/room-reservation"
           element={
             <ProtectedRoute>
               <RoomReservation />
