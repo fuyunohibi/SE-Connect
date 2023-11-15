@@ -11,10 +11,10 @@ const LoginModal = ({ onClose }) => {
 
   const handleLogout = () => {
     console.log("Logging out: ", userProfile.email); 
-    logout();
     Authentication.logout(userProfile.email)
       .then((response) => {
         console.log("Response: ", response);
+        logout();
         onClose();
       })
       .catch((error) => {
