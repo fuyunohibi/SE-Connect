@@ -124,7 +124,7 @@ async def register_password(user_data: dict):
     return {"message": "Password is valid"}
 
 
-UPLOAD_FOLDER = "profileImages"
+UPLOAD_FOLDER = "/files/profileImages"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -180,8 +180,7 @@ async def register_user_details(
         
         user_in_db = root.get(email)
         
-        if user_in_db and pwd_context.verify(password, user_in_db.password):
-          user_in_db.logged_in = True
+        user_in_db.logged_in = True
         transaction.commit()
 
         access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
