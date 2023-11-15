@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddIcon from "@mui/icons-material/Add";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import { DefaultUserProfile } from "@/assets/images/Auth";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import PhoneIcon from "@mui/icons-material/Phone";
-
 
 const RoomReservationSidebarData = [
   {
@@ -31,10 +31,11 @@ const RoomReservation = () => {
       <div className="flex flex-row">
         {isTablet ? <SideBar /> : null}
         <div className="w-full">
-          <div 
+          <div
             className="px-7 pt-10 pb-6
 
-          ">
+          "
+          >
             <h1 className="text-primary text-xl font-bold">Room Reservation</h1>
           </div>
           <DashboardContent />
@@ -46,19 +47,24 @@ const RoomReservation = () => {
 
 export default RoomReservation;
 
-
-
-const TitleBar = ({ title, date }) => {
+const TitleBar = ({ title }) => {
+  const currentDate = dayjs().format("DD MMM, YYYY");
   return (
     <div className="flex justify-between items-end pb-6">
       <h1 className="text-lg font-semibold  text-gray-500">{title}</h1>
-      <p className="text-sm font-semibold">{date}</p>
+      <p className="text-sm font-semibold">{currentDate}</p>
     </div>
   );
 };
 
 const DashboardContent = () => {
   let content;
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   if (location.pathname === "/room-reservation") {
     content = (
       <div className="flex flex-col w-full">
@@ -82,13 +88,13 @@ const DashboardContent = () => {
             />
           </div>
           <div className="flex w-full">
-            <BookingDetailsCard 
+            <BookingDetailsCard
               building="HM"
               room="806"
               date="15 Nov, 2023"
               startTime="18:00"
               endTime="21:00"
-              bookedBy="John Doe"
+              bookedBy="080-594-5005"
               showButton={false}
             />
           </div>
@@ -98,20 +104,33 @@ const DashboardContent = () => {
   } else if (location.pathname === "/create/room-reservation") {
     content = (
       <div className="flex flex-col w-full">
-        <TitleBar title="Create a Reservation" date="15 Nov, 2023" />
+        <TitleBar title="Create a Reservation" />
         <div
           className="reservation-list flex flex-col space-y-6 items-start
             md:flex-row md:justify-between md:space-x-6 md:space-y-0
           "
         >
           <div className="w-full space-y-2">
-            <DateSelectionCard />
-            <TimeSelectionCard />
-            <MobileInputCard />
+            <BuildingSelectionCard onBuildingSelect={setSelectedBuilding} />
+            {selectedBuilding ? (
+              <RoomSelectionCard
+                selectedBuilding={selectedBuilding ? selectedBuilding.name : ""}
+                onRoomSelect={setSelectedRoom}
+              />
+            ) : null}
+            <DateSelectionCard onDateSelect={setSelectedDate} />
+            <TimeSelectionCard onTimeSelect={setSelectedTime} />
+            <MobileInputCard onPhoneNumberChange={setPhoneNumber} />
           </div>
           <div className="flex w-full">
-            <BookingDetailsCard 
-              
+            <BookingDetailsCard
+              building={selectedBuilding ? selectedBuilding.name : ""}
+              room={selectedRoom ? selectedRoom.name : ""}
+              date={selectedDate ? selectedDate.format("DD MMM, YYYY") : ""}
+              startTime={selectedTime ? selectedTime.startTime : ""}
+              endTime={selectedTime ? selectedTime.endTime : ""}
+              bookedBy={phoneNumber}
+              showButton={false}
             />
           </div>
         </div>
@@ -120,10 +139,11 @@ const DashboardContent = () => {
   }
 
   return (
-    <div 
+    <div
       className="flex h-screen bg-[#e9ebef] rounded-t-[3rem] px-10 py-8 w-full
         md:rounded-tr-[0rem]
-    ">
+    "
+    >
       {content}
     </div>
   );
@@ -138,13 +158,10 @@ const ReservationCard = ({
   endTime,
   building,
   roomID,
-  status,
   reservationStatus,
 }) => {
   return (
-    <div 
-      className="flex justify-between px-8 py-6 rounded-xl bg-white"
-    >
+    <div className="flex justify-between px-8 py-6 rounded-xl bg-white">
       <div>
         <p className="text-gray-500 font-semibold">Name</p>
         <div className="flex justify-between space-x-4 mt-4">
@@ -186,55 +203,214 @@ const ReservationCard = ({
   );
 };
 
-const DateSelectionCard = () => {
+const BuildingSelectionCard = ({ onBuildingSelect }) => {
+  const buildings = [
+    { id: 1, name: "HM" },
+    { id: 2, name: "ECC" },
+    { id: 3, name: "Prathep" },
+  ];
+
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+
+  const handleBuildingSelect = (buildingId) => {
+    setSelectedBuildingId(buildingId);
+    const selectedBuilding = buildings.find(
+      (building) => building.id === buildingId
+    );
+    onBuildingSelect(selectedBuilding);
+  };
+
+
   return (
     <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
-      <h1 className=" font-semibold  text-black mb-3">
-        Select Date <span className="text-gray-500">- November 2023</span>
-      </h1>
+      <h1 className="font-semibold text-black mb-3">Select Building</h1>
       <div className="grid grid-cols-3 gap-4">
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">Fri</p>
-          <span className="font-bold text-white">07</span>
-        </button>
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">Mon</p>
-          <span className="font-bold text-white text-center">10</span>
-        </button>
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">Tue</p>
-          <span className="font-bold text-white">11</span>
-        </button>
+        {buildings.map((building) => (
+          <button
+            key={building.id}
+            className={`px-6 py-3 rounded-md text-center transition-all duration-300 ease-in-out ${
+              selectedBuildingId === building.id
+                ? "bg-primary text-white scale-110"
+                : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+            }`}
+            onClick={() => handleBuildingSelect(building.id)}
+          >
+            {building.name}
+          </button>
+        ))}
       </div>
     </div>
   );
-} 
+};
 
-const TimeSelectionCard = () => {
+
+const RoomSelectionCard = ({ selectedBuilding, onRoomSelect }) => {
+  const rooms = {
+    HM: [
+      { id: 1, name: "301" },
+      { id: 2, name: "302" },
+      { id: 3, name: "303" },
+      { id: 4, name: "304" },
+      { id: 5, name: "305" },
+      { id: 6, name: "306" },
+    ],
+    ECC: [
+      { id: 1, name: "801" },
+      { id: 2, name: "802" },
+      { id: 3, name: "803" },
+      { id: 4, name: "804" },
+      { id: 5, name: "805" },
+      { id: 6, name: "806" },
+    ],
+    Prathep: [
+      { id: 1, name: "101" },
+      { id: 2, name: "102" },
+      { id: 3, name: "103" },
+      { id: 4, name: "104" },
+      { id: 5, name: "105" },
+      { id: 6, name: "106" },
+    ],
+  };
+
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
+
+  const handleRoomSelect = (roomId) => {
+    setSelectedRoomId(roomId);
+    const selectedRoom = rooms[selectedBuilding].find(
+      (room) => room.id === roomId
+    );
+    onRoomSelect(selectedRoom);
+  };
+
   return (
     <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
-      <h1 className=" font-semibold  text-black mb-3">
-        Select Time
-      </h1>
+      <h1 className="font-semibold text-black mb-3">Select Room</h1>
       <div className="grid grid-cols-3 gap-4">
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">08 - 10 AM</p>
-        </button>
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">11 - 12 AM</p>
-        </button>
-        <button className="bg-primary px-6 py-3 rounded-md text-center">
-          <p className="text-white">01 - 02 PM</p>
-        </button>
+        {selectedBuilding && rooms[selectedBuilding].map((room) => (
+          <button
+            key={room.id}
+            className={`px-6 py-3 rounded-md text-center transition-all duration-300 ease-in-out ${
+              selectedRoomId === room.id
+                ? "bg-primary text-white scale-110"
+                : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+            }`}
+            onClick={() => handleRoomSelect(room.id)}
+          >
+            {room.name}
+          </button>
+        ))}
       </div>
     </div>
   );
-}; 
+};
 
-const MobileInputCard = () => {
+const DateSelectionCard = ({ onDateSelect }) => {
+  const [dates, setDates] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  useEffect(() => {
+    setDates(getDatesForCurrentWeek());
+  }, []);
+
+  const getDatesForCurrentWeek = () => {
+    let currentDate = dayjs();
+    let weekDates = [];
+
+    while (currentDate.day() !== 5 && currentDate.day() !== 6) {
+      weekDates.push(currentDate);
+      currentDate = currentDate.add(1, "day");
+    }
+
+    if (currentDate.day() === 5 || currentDate.day() === 6) {
+      let nextMonday = currentDate.day(8);
+      for (let i = 0; i < 5; i++) {
+        weekDates.push(nextMonday.add(i, "day"));
+      }
+    }
+
+    return weekDates;
+  };
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    onDateSelect(date); 
+  };
+
+
+  return (
+    <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
+      <h1 className="font-semibold text-black mb-3">
+        Select Date{" "}
+        <span className="text-gray-500">- {dayjs().format("MMMM YYYY")}</span>
+      </h1>
+      <div className="grid grid-cols-3 gap-4">
+        {dates.map((date, index) => (
+          <button
+            key={index}
+            className={`px-6 py-3 rounded-md text-center transition-all duration-300 ease-in-out ${
+              selectedDate && selectedDate.isSame(date, "day")
+                ? "bg-primary text-white scale-110"
+                : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+            }`}
+            onClick={() => {
+              handleDateSelect(date);
+            }}
+          >
+            <p>{date.format("ddd")}</p>
+            <span className="font-bold">{date.format("DD")}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+const TimeSelectionCard = ({ onTimeSelect }) => {
+  const times = [
+    { id: 1, startTime: "08:00 AM", endTime: "10:00 AM" },
+    { id: 2, startTime: "11:00 AM", endTime: "12:00 PM" },
+    { id: 3, startTime: "01:00 PM", endTime: "02:00 PM" },
+  ];
+
+  const [selectedTimeRangeId, setSelectedTimeRangeId] = useState(null);
+
+  const handleTimeSelect = (timeId) => {
+    setSelectedTimeRangeId(timeId);
+    const selectedTimeRange = times.find((time) => time.id === timeId);
+    onTimeSelect(selectedTimeRange);
+  };
+
+  return (
+    <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
+      <h1 className="font-semibold text-black mb-3">Select Time</h1>
+      <div className="grid grid-cols-3 gap-4">
+        {times.map((time) => (
+          <button
+            key={time.id}
+            className={`px-6 py-3 rounded-md text-center transition-all duration-300 ease-in-out ${
+              selectedTimeRangeId === time.id
+                ? "bg-primary text-white scale-110"
+                : "bg-transparent text-gray-400 hover:bg-gray-200 hover:scale-105"
+            }`}
+            onClick={() => handleTimeSelect(time.id)}
+          >
+            <p>
+              {time.startTime} - {time.endTime}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+
+const MobileInputCard = ({ onPhoneNumberChange }) => {
   return (
     <div className="flex flex-row justify-start items-start bg-white px-5 py-6 rounded-xl">
-      <div className="mr-5">
+      <div className="mr-5 text-primary">
         <PhoneIcon />
       </div>
       <div>
@@ -244,6 +420,7 @@ const MobileInputCard = () => {
         </p>
         <input
           type="text"
+          onChange={(e) => onPhoneNumberChange(e.target.value)}
           className="w-full h-10 mt-3 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
@@ -251,7 +428,15 @@ const MobileInputCard = () => {
   );
 };
 
-const BookingDetailsCard = ({ building = "", room = "", date = "", startTime = "" , endTime = "",  bookedBy ="", showButton = true  }) => {
+const BookingDetailsCard = ({
+  building = "",
+  room = "",
+  date = "",
+  startTime = "",
+  endTime = "",
+  bookedBy = "",
+  showButton = true,
+}) => {
   return (
     <div className="flex flex-1 flex-col bg-[#fafafa] rounded-xl mb-40">
       <div className="flex flex-1 flex-col justify-start items-start bg-white px-5 py-6 rounded-xl rounded-b-[3rem]">
@@ -301,6 +486,7 @@ const BookingDetailsCard = ({ building = "", room = "", date = "", startTime = "
 };
 
 const SideBar = () => {
+  const navigate = useNavigate();
   const getNavLinkClass = (isActive) => {
     return `flex flex-col justify-center items-center rounded-xl w-16 h-16 transition-all duration-300 ease-in-out
           ${
@@ -312,7 +498,7 @@ const SideBar = () => {
 
   return (
     <nav className="px-8 py-10 space-y-7 rounded-br-[3rem] ">
-      <div className="w-16 h-16">
+      <div className="w-16 h-16" onClick={() => navigate("/")}>
         <img src={SoftwareEngineeringLogo} alt="Logo" />
       </div>
       {RoomReservationSidebarData.map((item) => (
