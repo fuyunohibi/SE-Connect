@@ -63,8 +63,7 @@ const Main = () => {
           element={<RegisterUserDetails />}
         />
       </Routes>
-      {(!isLoginOrSignup) || (!isRoomReservation) && <Footer />}
-
+      {!isLoginOrSignup && !isRoomReservation && <Footer />}
     </main>
   );
 };
