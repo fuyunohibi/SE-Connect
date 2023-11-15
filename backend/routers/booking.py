@@ -27,36 +27,47 @@ def generate_random_string(length):
 
 class BookingRequest(BaseModel):
     status: ReservationStatusEnum = ReservationStatusEnum.idle
-    room_id: str
+    ID: str
     building: str
-    time_slot: Dict[str, str]
-    request_id: str = None
+    availability: Dict[str, str]
+    requestID: str = None
     date: str
-    booked_by: Dict[str, str]
+    bookedBy: Dict[str, str]
 
     def __init__(self, **data):
         super().__init__(**data)
-        self.request_id = generate_random_string(10)
+        self.requestID = generate_random_string(10)
+
+
+class BookingResponse(BaseModel):
+    requestID: str
+    status: ReservationStatusEnum
+    ID: str
+    building: str
+    availability: Dict[str, str]
+    date: datetime
+    bookedBy: Dict[str, str]
 
 
 def is_available(booking: BookingRequest):
     if booking.building not in valid_buildings:
         return False
 
-    for request_id in root:
-        existing_booking = root[request_id]
+    for requestID in root:
+        existing_booking = root[requestID]
         if existing_booking.status == ReservationStatusEnum.cancelled:
             continue
         if existing_booking.date != booking.date:
             continue
         if (
             booking.building != existing_booking.building
-            or booking.room_id != existing_booking.room_id
+            or booking.ID != existing_booking.ID
         ):
             continue
         if (
-            booking.time_slot["start_time"] < existing_booking.time_slot["end_time"]
-            and booking.time_slot["end_time"] > existing_booking.time_slot["start_time"]
+            booking.availability["startTime"] < existing_booking.availability["endTime"]
+            and booking.availability["endTime"]
+            > existing_booking.availability["startTime"]
         ):
             return False
     return True
@@ -64,62 +75,61 @@ def is_available(booking: BookingRequest):
 
 @router.post("/reservation/request", response_model=dict)
 async def request_booking(booking: BookingRequest):
-    if booking.time_slot["start_time"] >= booking.time_slot["end_time"]:
+    if booking.availability["startTime"] >= booking.availability["endTime"]:
         raise HTTPException(status_code=400, detail="Bad Request: Invalid Time Slot")
 
+    booking.date = datetime.strptime(booking.date, "%d/%m/%Y")
     if not is_available(booking) or booking.status == ReservationStatusEnum.success:
         raise HTTPException(status_code=409, detail="Conflict: Room is Unavailable")
 
     booking.status = ReservationStatusEnum.success
-    root[booking.request_id] = booking
+    root[booking.requestID] = booking
     transaction.commit()
 
-    start_time = booking.time_slot["start_time"]
-    end_time = booking.time_slot["end_time"]
-    user_info = booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
-    iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
-    message = f"Building Name: {booking.building}, Room ID: {booking.room_id}, Date: {iso_date}, Start Time: {start_time}, End Time: {end_time}, Booked by: {user_info}, Status: {booking.status.name}"
+    startTime = booking.availability["startTime"]
+    endTime = booking.availability["endTime"]
+    user_info = booking.bookedBy["firstname"] + " " + booking.bookedBy["lastname"]
+    message = f"Building Name: {booking.building}, Room ID: {booking.ID}, Date: {booking.date}, Start Time: {startTime}, End Time: {endTime}, Booked by: {user_info}, Status: {booking.status.name}"
 
     return {"message": message}
 
 
 @router.get("/reservation/all", response_model=list)
 def get_all_rooms():
-    room_list = []
-    for request_id in root:
-        booking = root[request_id]
-        user_info = booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
-        iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
-        room_list.append(
-            {
-                booking
-            }
+    return [
+        BookingResponse(
+            requestID=booking.requestID,
+            status=booking.status,
+            ID=booking.ID,
+            building=booking.building,
+            availability=booking.availability,
+            date=booking.date,
+            bookedBy=booking.bookedBy,
         )
-    return room_list
+        for booking in root.values()
+        if isinstance(booking, BookingRequest)
+    ]
 
 
-@router.get(
-    "/reservation/building={building}/room_id={room_id}", response_model=list[dict]
-)
-async def get_room(building: str, room_id: str):
+@router.get("/reservation/building={building}/ID={ID}", response_model=list)
+async def get_room(building: str, ID: str):
     room_bookings = []
-    for request_id in root:
-        booking = root[request_id]
-        if booking.building == building and booking.room_id == room_id:
-            user_info = (
-                booking.booked_by["firstname"] + " " + booking.booked_by["lastname"]
+    for requestID in root:
+        booking = root[requestID]
+        if (
+            isinstance(booking, BookingRequest)
+            and booking.building == building
+            and booking.ID == ID
+        ):
+            booking_info = BookingResponse(
+                requestID=booking.requestID,
+                status=booking.status,
+                ID=booking.ID,
+                building=booking.building,
+                availability=booking.availability,
+                date=booking.date,
+                bookedBy=booking.bookedBy,
             )
-            iso_date = datetime.strptime(booking.date, "%d/%m/%Y").isoformat()
-            booking_info = {
-                "Building": booking.building,
-                "Room ID": booking.room_id,
-                "Start Time": booking.time_slot["start_time"],
-                "End Time": booking.time_slot["end_time"],
-                "Request ID": booking.request_id,
-                "Date": iso_date,
-                "Booked By": user_info,
-                "Status": booking.status,
-            }
             room_bookings.append(booking_info)
     return room_bookings
 
