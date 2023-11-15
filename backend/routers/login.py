@@ -164,7 +164,6 @@ async def register_user_details(
                 detail="Email and password are required",
             )
 
-        # Process the file upload
         contents = await profile_picture.read()
         unique_filename = f"{uuid.uuid4()}.jpeg"
         file_path = save_uploaded_file(contents, unique_filename, ID)
@@ -181,8 +180,31 @@ async def register_user_details(
             )
         )
         root[email] = user_db
+        
+        user_in_db = root.get(email)
+        
+        if user_in_db and pwd_context.verify(password, user_in_db.password):
+        user_in_db.logged_in = True
+        transaction.commit()
 
-        return {"message": user_db.__dict__}
+        access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": email}, expires_delta=access_token_expires
+        )
+        return {
+            "message": "Register & successful",
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "email": user_in_db.email,
+                "firstname": user_in_db.firstname,
+                "lastname": user_in_db.lastname,
+                "ID": user_in_db.ID,
+                "year_of_study": user_in_db.year_of_study,
+                "profile_picture": user_in_db.profile_picture,
+            },
+        }
+
     except HTTPException as e:
         raise e
     except Exception as e:

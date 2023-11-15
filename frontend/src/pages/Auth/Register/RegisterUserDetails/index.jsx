@@ -40,7 +40,7 @@ const RegisterUserDetails = () => {
       const imageUrl = URL.createObjectURL(event.target.files[0]);
       setAvatarUrl(imageUrl); // Set the temporary URL to state
       setAvatar(event.target.files[0]);
-    }
+    } 
   };
 
   const handleFirstNameChange = (event) => {
@@ -71,39 +71,32 @@ const RegisterUserDetails = () => {
     )
       .then((res) => {
         console.log("Response: ", res);
-        // console.log("ACCESS TOKEN:", res.access_token)
-        // if (res.access_token) {
-        //   authenticateUser(res.access_token, res.user);
-        //   const userData = res.user;
-        //   setEmail(userData.email);
-        //   setKmitlID(userData.ID);
-        //   setYearOfStudy(userData.year_of_study);
-        //   setAvatar(userData.profile_picture);
-        //   setFirstName(userData.firstname);
-        //   setLastName(userData.lastname);
-        //   localStorage.setItem("userProfile", JSON.stringify(userData));
+        console.log("ACCESS TOKEN:", res.access_token)
+        if (res.access_token) {
+          authenticateUser(res.access_token, res.user);
+          const userData = res.user;
+          setEmail(userData.email);
+          setKmitlID(userData.ID);
+          setYearOfStudy(userData.year_of_study);
+          setAvatar(userData.profile_picture);
+          setFirstName(userData.firstname);
+          setLastName(userData.lastname);
+          localStorage.setItem("userProfile", JSON.stringify(userData));
 
 
-        //   console.log(
-        //     "User details registration uccessful & now logged in:",
-        //     res
-        //   );
-        //   navigate("/");
-        // } else {
-        //   console.error("Register & Login successful, but no token received.");
-        // }
+          console.log(
+            "User details registration uccessful & now logged in:",
+            res
+          );
+          navigate("/");
+        } else {
+          console.error("Register & Login successful, but no token received.");
+        }
       })
       .catch((err) => {
         console.error("Error registering user details:", err);
       });
   };
-
-  useEffect(() => {
-    if (userProfile.email.includes("@kmitl.ac.th")) {
-      const id = userProfile.email.split("@kmitl.ac.th")[0];
-      setKmitlID(id);
-    }
-  }, [userProfile.email, setKmitlID]);
 
   useEffect(() => {
     if (userProfile.email.includes("@kmitl.ac.th")) {
@@ -160,7 +153,7 @@ const RegisterUserDetails = () => {
             >
               <Avatar
                 alt="Profile Picture"
-                src={avatarUrl} // Use the temporary URL or default logo
+                src={avatarUrl} // NOTE: Use the temporary URL or default logo
                 sx={{ width: 56, height: 56 }}
               />
             </IconButton>
