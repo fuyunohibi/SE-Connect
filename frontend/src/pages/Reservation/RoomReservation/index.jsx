@@ -66,23 +66,36 @@ const RoomReservation = () => {
   return (
     <>
       <SideBar />
+      <TitleBar />
       <div className="flex bg-white ml-32">
         <Dashboard />
-        <div className="text-sm font-semibold mb-6">15 Nov, 2023</div>
       </div>
     </>
+  );
+};
+const TitleBar = () => {
+  return (
+    <nav className="fixed z-10 w-[100%] pl-12 pt-10 pb-5 pr-[10.5rem] flex justify-between items-start top-0 left-32 right-0 bg-white">
+      <h1 className="text-primary text-xl font-bold">Room Reservation</h1>
+      <div className="flex space-x-3">
+        <p className="text-sm font-semibold ">Hello, John</p>
+        <div className="rounded-full h-12 w-12 -mt-3">
+          <img src={DefaultUserProfile} alt="User Profile" />
+        </div>
+      </div>
+    </nav>
   );
 };
 
 const Dashboard = () => {
   return (
-    <div className="flex bg-[#e9ebef] rounded-t-[3rem] px-10 py-10 mt-24">
-
-
-
+    <div className="flex bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
       <div className="flex flex-col">
-        <h1 className="text-xl font-semibold mb-6 text-gray-500">Reserved</h1>
-        <div className="relative bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
+        <div className="flex justify-between items-center w-[52rem] mb-6">
+          <h1 className="text-xl font-semibold  text-gray-500">Reserved</h1>
+          <p className="text-sm font-semibold">15 Nov, 2023</p>
+        </div>
+        <div className="relative z-0 bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
           Confirm
           <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
         </div>
@@ -121,13 +134,7 @@ const Dashboard = () => {
             reservationStatus="Active"
           />
         </div>
-        <div className="relative bg-white shaodw-3xl drop-shadow-lg text-center w-36 py-2 rounded-lg text-black font-semibold">
-          Confirm
-          <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
-        </div>
       </div>
-
-
     </div>
   );
 };
