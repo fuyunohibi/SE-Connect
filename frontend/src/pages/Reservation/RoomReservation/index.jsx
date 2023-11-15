@@ -51,7 +51,7 @@ export default RoomReservation;
 const TitleBar = ({ title, date }) => {
   return (
     <div className="flex justify-between items-end pb-6">
-      <h1 className="text-lg font-semibold  text-gray-500 ">{title}</h1>
+      <h1 className="text-lg font-semibold  text-gray-500">{title}</h1>
       <p className="text-sm font-semibold">{date}</p>
     </div>
   );
@@ -132,7 +132,10 @@ const DashboardContent = () => {
   }
 
   return (
-    <div className="flex h-screen bg-[#e9ebef] rounded-t-[3rem] px-10 py-8 w-full">
+    <div 
+      className="flex h-screen bg-[#e9ebef] rounded-t-[3rem] px-10 py-8 w-full
+        md:rounded-tr-[0rem]
+    ">
       {content}
     </div>
   );
