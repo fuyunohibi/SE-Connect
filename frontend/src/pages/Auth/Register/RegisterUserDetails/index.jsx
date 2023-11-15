@@ -22,6 +22,7 @@ const RegisterUserDetails = () => {
   const { authenticateUser } = useContext(AuthContext);
   const {
     userProfile,
+    setEmail,
     setKmitlID,
     setYearOfStudy,
     setFirstName,

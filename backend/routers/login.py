@@ -2,11 +2,8 @@ import jwt
 import datetime
 from fastapi import HTTPException, APIRouter, File, UploadFile, Form, status, Depends
 from pydantic import BaseModel, EmailStr
-from ZODB import DB
-from ZODB.FileStorage import FileStorage
 from persistent import Persistent
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from typing import Optional
 from .database import init_db
@@ -119,7 +116,7 @@ async def register_password(user_data: dict):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid registration process.",
         )
-
+    
     hashed_password = pwd_context.hash(password)
     registration_data["password"] = hashed_password
     in_progress_registrations[registration_id] = registration_data
@@ -183,7 +180,6 @@ async def register_user_details(
         
         user_in_db = root.get(email)
         
-        if user_in_db and pwd_context.verify(password, user_in_db.password):
         user_in_db.logged_in = True
         transaction.commit()
 
@@ -196,6 +192,7 @@ async def register_user_details(
             "access_token": access_token,
             "token_type": "bearer",
             "user": {
+                "logged_in": user_in_db.logged_in,
                 "email": user_in_db.email,
                 "firstname": user_in_db.firstname,
                 "lastname": user_in_db.lastname,
