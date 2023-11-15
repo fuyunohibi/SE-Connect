@@ -1,4 +1,6 @@
 import React from "react";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import AddIcon from "@mui/icons-material/Add";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import { DefaultUserProfile } from "@/assets/images/Auth";
 import {
@@ -14,51 +16,18 @@ import {
 } from "@/assets/icons/Navbar";
 import { NavLink } from "react-router-dom";
 
-// import RoomMap from "./RoomMap";
-// import AddReservationButton from "./AddReservationButton";
-
 const RoomReservationSidebarData = [
   {
     id: 1,
-    name: "Home",
-    icon: HomeIcon,
-    link: "/",
+    name: "Dashboard",
+    icon: DashboardIcon,
+    link: "/room-reservation",
   },
   {
     id: 2,
-    name: "About",
-    icon: AboutIcon,
-    link: "/about",
-  },
-  {
-    id: 3,
-    name: "Programs",
-    icon: ProgramsIcon,
-    link: "/programs",
-  },
-  {
-    id: 4,
-    name: "Admissions",
-    icon: AdmissionsIcon,
-    link: "/admissions",
-  },
-  {
-    id: 5,
-    name: "Connections",
-    icon: ConnectionsIcon,
-    link: "/connections",
-  },
-  {
-    id: 6,
-    name: "News",
-    icon: NewsIcon,
-    link: "/news",
-  },
-  {
-    id: 7,
-    name: "Events",
-    icon: HomeIcon,
-    link: "/events",
+    name: "Create",
+    icon: AddIcon, 
+    link: "/create/room-reservation", 
   },
 ];
 
@@ -89,7 +58,7 @@ const TitleBar = () => {
 
 const Dashboard = () => {
   return (
-    <div className="flex bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
+    <div className="fixed flex h-full bg-[#e9ebef] rounded-tl-[3rem] px-10  py-10 mt-24 w-full">
       <div className="flex flex-col">
         <div className="flex justify-between items-center w-[52rem] mb-6">
           <h1 className="text-xl font-semibold  text-gray-500">Reserved</h1>
@@ -99,7 +68,7 @@ const Dashboard = () => {
           Confirm
           <span className="absolute bottom-0 left-14 bg-primary w-7 h-1"></span>
         </div>
-        <div className="flex flex-col space-y-2 mt-5">
+        <div className="reservation-list flex flex-col space-y-2 mt-5">
           <ReservationCard
             firstName="John"
             lastName="Doe"
@@ -140,8 +109,13 @@ const Dashboard = () => {
 };
 
 const SideBar = () => {
+  const getNavLinkClass = (isActive) => {
+    return isActive
+      ? "flex flex-col justify-center items-center rounded-xl w-16 h-16 bg-primary text-white" // Active State
+      : "flex flex-col justify-center items-center rounded-xl w-16 h-16 text-gray-400"; // Inactive State
+  };
   return (
-    <nav className="fixed h-[100%] px-8 py-10  space-y-7">
+    <nav className="fixed px-8 py-10 space-y-7 rounded-br-[3rem]">
       <div className="w-16 h-16">
         <img src={SoftwareEngineeringLogo} alt="Logo" />
       </div>
@@ -150,9 +124,10 @@ const SideBar = () => {
           key={item.id}
           id={item.id}
           to={item.link}
-          className="flex flex-col justify-center items-center rounded-xl w-16 h-16 bg-primary"
-          // onClick={onClose}
-        ></NavLink>
+          className={({ isActive }) => getNavLinkClass(isActive)}
+        >
+          <item.icon />
+        </NavLink>
       ))}
     </nav>
   );
