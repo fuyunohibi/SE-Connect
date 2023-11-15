@@ -13,7 +13,7 @@ import { AuthContext } from "@/components/AuthProvider";
 const LoginPassword = () => {
   const navigate = useNavigate();
 
-  const { setAuthToken } = useContext(AuthContext);
+  const { authenticateUser } = useContext(AuthContext);
   const {
     userProfile,
     clearEmail,
@@ -52,7 +52,7 @@ const LoginPassword = () => {
       .then((res) => {
         if (res.access_token) {
           console.log("Response: ", res);
-          setAuthToken(res.access_token); 
+          authenticateUser(res.access_token, res.user);
 
           const userData = res.user;
           setKmitlID(userData.ID);
@@ -60,12 +60,10 @@ const LoginPassword = () => {
           setAvatar(userData.profile_picture);
           setFirstName(userData.firstname);
           setLastName(userData.lastname);
-
           localStorage.setItem("userProfile", JSON.stringify(userData));
 
           navigate("/");
         } else {
-          // NOTE: Handle the case where no token is returned
           console.error("Login successful, but no token received.");
         }
       })
