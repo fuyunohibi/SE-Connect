@@ -7,8 +7,7 @@ import useUserStore from "@/store/useUserStore";
 
 const Main = () => {
   const location = useLocation();
-
-
+  
   useEffect(() => {
     const storedUserProfile = localStorage.getItem("userProfile");
     console.log("storedUserProfile: ", storedUserProfile);
@@ -26,6 +25,8 @@ const Main = () => {
     location.pathname === "/auth/login/identifier" || location.pathname === "/auth/login/password" || 
     location.pathname === "/auth/signup/identifier" || location.pathname === "/auth/signup/password" || 
     location.pathname === "/auth/signup/user-details";
+
+  const isRoomReservation = location.pathname === "/room-reservation";
 
   return (
     <main id="main-container" className="mb-32 md:mb-0">
@@ -62,7 +63,7 @@ const Main = () => {
           element={<RegisterUserDetails />}
         />
       </Routes>
-      {!isLoginOrSignup && <Footer />}
+      {!isLoginOrSignup && !isRoomReservation && <Footer />}
     </main>
   );
 };
