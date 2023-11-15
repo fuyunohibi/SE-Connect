@@ -155,7 +155,7 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
         onClick={toggleLoginModal}
       >
         <img
-          src={authState.isAuthenticated ? `http://localhost:8000/files/${userProfile.avatar.replace(/\\/g, '/')}` : DefaultUserProfile}
+          src={authState.isAuthenticated ? `http://localhost:8000/${userProfile.avatar.replace(/\\/g, '/')}` : DefaultUserProfile}
           alt="My Profile"
           type="file"
           accept="image/*"

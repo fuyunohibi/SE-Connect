@@ -116,7 +116,7 @@ async def register_password(user_data: dict):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid registration process.",
         )
-    
+
     hashed_password = pwd_context.hash(password)
     registration_data["password"] = hashed_password
     in_progress_registrations[registration_id] = registration_data
@@ -124,12 +124,17 @@ async def register_password(user_data: dict):
     return {"message": "Password is valid"}
 
 
-UPLOAD_FOLDER = "/files/profileImages"
+UPLOAD_FOLDER = "files/profileImages"
+DEFAULT_SVG_CONTENT = "files/profileImages/default.svg"
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # NOTE: Save the uploaded file
 def save_uploaded_file(contents, filename, user_id):
+    if not contents:
+        return DEFAULT_SVG_CONTENT
+    
     user_directory = os.path.join(UPLOAD_FOLDER, user_id)
     os.makedirs(user_directory, exist_ok=True)
     file_path = os.path.join(user_directory, filename)
@@ -145,7 +150,7 @@ async def register_user_details(
     lastname: str = Form(...),
     ID: str = Form(...),
     year_of_study: str = Form(...),
-    profile_picture: UploadFile = File(...),
+    profile_picture: UploadFile = Optional[File(None)],
 ):
     try:
         registration_data = in_progress_registrations.get(registration_id)
@@ -177,9 +182,9 @@ async def register_user_details(
             )
         )
         root[email] = user_db
-        
+
         user_in_db = root.get(email)
-        
+
         user_in_db.logged_in = True
         transaction.commit()
 
