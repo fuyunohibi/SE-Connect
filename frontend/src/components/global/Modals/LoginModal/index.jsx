@@ -6,7 +6,7 @@ import Authentication from "@/lib/api/authentication";
 
 const LoginModal = ({ onClose }) => {
   const { authState, logout } = useContext(AuthContext);
-  const { userProfile } = useUserStore();
+  const { userProfile, clearAllData } = useUserStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -15,6 +15,7 @@ const LoginModal = ({ onClose }) => {
       .then((response) => {
         console.log("Response: ", response);
         logout();
+        clearAllData();
         onClose();
       })
       .catch((error) => {

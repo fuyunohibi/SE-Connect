@@ -9,7 +9,7 @@ import Authentication from "@/lib/api/authentication";
 const Register = () => {
   const navigate = useNavigate();
 
-  const { userProfile, setEmail } = useUserStore();
+  const { userProfile, setEmail, setRegistrationID } = useUserStore();
 
   const emailRef = useRef(null);
   const [emailExists, setEmailExists] = useState(false);
@@ -36,13 +36,14 @@ const Register = () => {
     }
 
     Authentication.registerWithIdentifier(userProfile.email)
-      .then((res) => {
-        console.log("Response: ", res);
+      .then((response) => {
+        setRegistrationID(response.registration_id);
+        console.log("Email registration successful:", response);
         navigate("/auth/signup/password");
       })
-      .catch((err) => {
-        console.error("Error: ", err);
-        handleRegistrationError(err);
+      .catch((error) => {
+        console.error("Email registration failed:", error);
+        handleRegistrationError(error);
       });
   };
 

@@ -1,17 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routers import login, booking
 from ZODB import DB, FileStorage
 import transaction
 from contextlib import contextmanager
 
-# Initialize your FastAPI application
+# Define CORS settings
+origins = [
+    "http://127.0.0.1:3000",  
+]
+
+
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="profileImages"), name="static")
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers

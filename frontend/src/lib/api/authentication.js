@@ -5,7 +5,8 @@ class Authentication {
   static registerWithIdentifier(email) {
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/register/identifier?email=${encodeURIComponent(email)}`,
+      url: `/auth/signup/identifier`,
+      body: { email },
     };
 
     return request(config)
@@ -18,10 +19,11 @@ class Authentication {
       });
   }
 
-  static registerWithPassword(password) {
+  static registerWithPassword(registration_id, password) {
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/register/password?password=${encodeURIComponent(password)}`,
+      url: `/auth/signup/password`,
+      body: { registration_id, password },
     };
 
     return request(config)
@@ -34,19 +36,22 @@ class Authentication {
       });
   }
 
-  static registerUserDetails(options) {
-    const formData = new FormData();
-
-    formData.append("firstname", options.firstname);
-    formData.append("lastname", options.lastname);
-    formData.append("ID", options.ID);
-    formData.append("year_of_study", options.year_of_study);
-    formData.append("profile_picture", options.profile_picture);
-
+  static registerUserDetails(registration_id, firstname, lastname, ID, year_of_study, profile_picture) {
+    
     const config = {
       method: HTTP_METHODS.post,
-      url: `/auth/register/user-details`,
-      body: formData,
+      url: `/auth/signup/user-details`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        registration_id: registration_id,
+        firstname: firstname,
+        lastname: lastname,
+        ID: ID,
+        year_of_study: year_of_study,
+        profile_picture: profile_picture,
+      }
     };
 
     return request(config)
@@ -55,8 +60,10 @@ class Authentication {
       })
       .catch((error) => {
         console.error(error);
-        throw { ...error.response.data, ok: false };
+        throw error;
       });
+
+
   }
 
   static loginWithIdentifier(email) {
@@ -97,10 +104,10 @@ class Authentication {
         throw error;
       });
   }
-  
+
   static logout(email) {
     const config = {
-      method: HTTP_METHODS.get, 
+      method: HTTP_METHODS.get,
       url: `/logout?email=${encodeURIComponent(email)}`,
     };
 

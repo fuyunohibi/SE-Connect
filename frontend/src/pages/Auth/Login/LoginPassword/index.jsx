@@ -17,6 +17,7 @@ const LoginPassword = () => {
   const {
     userProfile,
     clearEmail,
+    setEmail,
     setKmitlID,
     setYearOfStudy,
     setAvatar,
@@ -44,10 +45,6 @@ const LoginPassword = () => {
       return;
     }
 
-    console.log(
-      JSON.stringify({ email: userProfile.email, password: password })
-    );
-
     Authentication.loginWithPassword(userProfile.email, password)
       .then((res) => {
         if (res.access_token) {
@@ -55,6 +52,7 @@ const LoginPassword = () => {
           authenticateUser(res.access_token, res.user);
 
           const userData = res.user;
+          setEmail(userData.email);
           setKmitlID(userData.ID);
           setYearOfStudy(userData.year_of_study);
           setAvatar(userData.profile_picture);

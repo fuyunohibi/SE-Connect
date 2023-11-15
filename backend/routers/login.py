@@ -1,6 +1,6 @@
 import jwt
 import datetime
-from fastapi import HTTPException, APIRouter, File, UploadFile, Form, status
+from fastapi import HTTPException, APIRouter, File, UploadFile, Form, status, Depends
 from pydantic import BaseModel, EmailStr
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
@@ -40,6 +40,14 @@ class UserCreate(BaseModel):
     ID: str
     year_of_study: str
     profile_picture: Optional[str] = None
+    
+class UserRegistrationData(BaseModel):
+    registration_id: str
+    firstname: str
+    lastname: str
+    ID: str
+    year_of_study: str
+    profile_picture: str
 
 
 class UserLogin(BaseModel):
@@ -68,6 +76,7 @@ class UserResponse(BaseModel):
 
 
 root = init_db()
+in_progress_registrations = {}
 
 # NOTE: Validate KMITL email
 def is_valid_kmitl_email(email: str) -> bool:
@@ -77,9 +86,9 @@ def is_valid_kmitl_email(email: str) -> bool:
         and len(email.split("@")[0]) == 8
     )
 
-
-@router.post("/auth/register/identifier", response_model=dict)
-async def register_email(email: EmailStr):
+@router.post("/auth/signup/identifier", response_model=dict)
+async def register_email(user_data: dict):
+    email = user_data.get("email")
     if email in root:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
@@ -89,24 +98,31 @@ async def register_email(email: EmailStr):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Requires KMITL email only"
         )
+        
+    registration_id = str(uuid.uuid4())
+    in_progress_registrations[registration_id] = {"email": email}
+    return {"registration_id": registration_id, "message": "Email is valid"}
 
-    # FIXME: CAPTAIN - A global variable, which is not recommended
-    global user_register
-    user_register = {"email": email}
-    return {"message": "Email is valid"}
 
+@router.post("/auth/signup/password", response_model=dict)
+async def register_password(user_data: dict):
+    registration_id = user_data.get("registration_id")
+    password = user_data.get("password")
+    
+    registration_data = in_progress_registrations.get(registration_id)
+    if not registration_data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid registration process.")
 
-@router.post("/auth/register/password", response_model=dict)
-async def register_password(password: str):
     hashed_password = pwd_context.hash(password)
-    global user_register
-    user_register["password"] = hashed_password
-    return {"message": "Password is valid"}
+    registration_data["password"] = hashed_password
+    in_progress_registrations[registration_id] = registration_data
+    
 
+    return {"message": "Password is valid"}
+    
 
 UPLOAD_FOLDER = "profileImages"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 # NOTE: Save the uploaded file
 def save_uploaded_file(contents, filename, user_id):
@@ -118,26 +134,30 @@ def save_uploaded_file(contents, filename, user_id):
     return file_path
 
 
-@router.post("/auth/register/user-details", response_model=dict)
-async def register_user_details(
-    firstname: str = Form(...),
-    lastname: str = Form(...),
-    ID: str = Form(...),
-    year_of_study: str = Form(...),
-    profile_picture: UploadFile = File(...),
-):
-    email = user_register.get("email")
-    hashed_password = user_register.get("password")
+@router.post("/auth/signup/user-details", response_model=dict)
+async def register_user_details(user_data: dict):
+    
+    registration_id = user_data.get("registration_id")
+    firstname = user_data.get("firstname")
+    lastname = user_data.get("lastname")
+    ID = user_data.get("ID")
+    year_of_study = user_data.get("year_of_study")
+    profile_picture = user_data.get("profile_picture")
+    
+    
+    registration_data = in_progress_registrations.get(registration_id)
+    if not registration_data:
+      raise HTTPException(status_code=400, detail="Invalid registration process.")
+    
+
+    email = registration_data.get("email")
+    hashed_password = registration_data.get("password")
 
     if email is None or hashed_password is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email and password are required",
         )
-
-    contents = await profile_picture.read()
-    unique_filename = f"{uuid.uuid4()}.jpeg"
-    file_path = save_uploaded_file(contents, unique_filename, ID)
 
     user_db = UserDB(
         UserCreate(
@@ -147,12 +167,10 @@ async def register_user_details(
             lastname=lastname,
             ID=ID,
             year_of_study=year_of_study,
-            profile_picture=file_path,
+            profile_picture=profile_picture,
         )
     )
-    root[email] = user_db
-    transaction.commit()
-    return {"message": "User registered successfully"}
+    root[email] = user_db  
 
 
 @router.post("/auth/login/identifier", response_model=dict)

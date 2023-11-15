@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   TextField,
@@ -14,9 +14,12 @@ import IconButton from "@mui/material/IconButton";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import useUserStore from "@/store/useUserStore";
 import Authentication from "@/lib/api/authentication";
+import { AuthContext } from "@/components/AuthProvider";
 
 const RegisterUserDetails = () => {
   const navigate = useNavigate();
+
+  const { authenticateUser } = useContext(AuthContext);
   const {
     userProfile,
     setKmitlID,
@@ -53,31 +56,45 @@ const RegisterUserDetails = () => {
     console.log(userProfile.yearOfStudy);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    try {
-      console.log("Options:", {
-        firstname: userProfile.firstName,
-        lastname: userProfile.lastName,
-        ID: userProfile.KmitlID,
-        year_of_study: userProfile.yearOfStudy,
-        profile_picture: userProfile.avatar,
-      });
 
-      await Authentication.registerUserDetails({
-        firstname: userProfile.firstName,
-        lastname: userProfile.lastName,
-        ID: userProfile.KmitlID,
-        year_of_study: userProfile.yearOfStudy,
-        profile_picture: userProfile.avatar,
+    Authentication.registerUserDetails(
+      userProfile.registrationID,
+      userProfile.firstName,
+      userProfile.lastName,
+      userProfile.KmitlID,
+      userProfile.yearOfStudy,
+      userProfile.avatar
+    )
+      .then((res) => {
+        console.log("Response: ", res);
+        // console.log("ACCESS TOKEN:", res.access_token)
+        // if (res.access_token) {
+        //   authenticateUser(res.access_token, res.user);
+        //   const userData = res.user;
+        //   setEmail(userData.email);
+        //   setKmitlID(userData.ID);
+        //   setYearOfStudy(userData.year_of_study);
+        //   setAvatar(userData.profile_picture);
+        //   setFirstName(userData.firstname);
+        //   setLastName(userData.lastname);
+        //   localStorage.setItem("userProfile", JSON.stringify(userData));
+
+
+        //   console.log(
+        //     "User details registration uccessful & now logged in:",
+        //     res
+        //   );
+        //   navigate("/");
+        // } else {
+        //   console.error("Register & Login successful, but no token received.");
+        // }
+      })
+      .catch((err) => {
+        console.error("Error registering user details:", err);
       });
-      navigate("/");
-    } catch (error) {
-      console.error("Error registering user details:", error);
-    }
   };
-
-
 
   useEffect(() => {
     if (userProfile.email.includes("@kmitl.ac.th")) {
@@ -87,8 +104,11 @@ const RegisterUserDetails = () => {
   }, [userProfile.email, setKmitlID]);
 
   useEffect(() => {
-    console.log(userProfile);
-  }, [userProfile]);
+    if (userProfile.email.includes("@kmitl.ac.th")) {
+      const id = userProfile.email.split("@kmitl.ac.th")[0];
+      setKmitlID(id);
+    }
+  }, [userProfile.email, setKmitlID]);
 
   return (
     <Container component="main" maxWidth="xs">

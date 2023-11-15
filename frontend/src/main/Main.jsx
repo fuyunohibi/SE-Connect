@@ -13,6 +13,7 @@ const Main = () => {
     console.log("storedUserProfile: ", storedUserProfile);
     if (storedUserProfile) {
       const profile = JSON.parse(storedUserProfile);
+      useUserStore.getState().setEmail(profile.email);
       useUserStore.getState().setKmitlID(profile.ID);
       useUserStore.getState().setYearOfStudy(profile.year_of_study);
       useUserStore.getState().setAvatar(profile.profile_picture);

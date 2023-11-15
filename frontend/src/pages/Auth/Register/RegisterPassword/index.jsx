@@ -34,14 +34,14 @@ const RegisterPassword = () => {
       return;
     } 
 
-    Authentication.registerWithPassword(userProfile.password)
-      .then((res) => {
-        console.log("Response: ", res);
+    Authentication.registerWithPassword(userProfile.registrationID, password)
+      .then((response) => {
+        console.log("Password registration successful:", response);
         navigate("/auth/signup/user-details");
       })
-      .catch((err) => {
-        console.error("Error: ", err);
-        handleRegistrationError(err);
+      .catch((error) => {
+        console.error("Password registration failed:", error);
+        handleRegistrationError(error);
       });
   };
 
