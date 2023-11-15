@@ -136,6 +136,9 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
   const { authState } = useContext(AuthContext);
   const { userProfile } = useUserStore();
 
+  console.log("UserProfile Avatar:", userProfile.avatar.replace(/\\/g, '/'));
+  console.log("Default User Profile:", DefaultUserProfile);
+
   return (
     <nav
       className="hidden fixed slide-from-top mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
@@ -152,14 +155,13 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
         onClick={toggleLoginModal}
       >
         <img
-          src={
-            authState.isAuthenticated ? userProfile.avatar : DefaultUserProfile
-          }
+          src={authState.isAuthenticated ? `http://localhost:8000/files/${userProfile.avatar.replace(/\\/g, '/')}` : DefaultUserProfile}
           alt="My Profile"
           type="file"
           accept="image/*"
           className="object-contain w-full h-full"
         />
+
       </button>
       <SELogo className="absolute left-0 right-0 -top-[1rem] scale-75" />
       <button

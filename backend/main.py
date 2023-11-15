@@ -7,7 +7,8 @@ import transaction
 from contextlib import contextmanager
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="profileImages"), name="static")
+app.mount("/files", StaticFiles(directory="files"), name="files")
+
 
 # Configure CORS
 app.add_middleware(

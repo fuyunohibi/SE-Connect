@@ -41,6 +41,7 @@ const RegisterUserDetails = () => {
       const imageUrl = URL.createObjectURL(event.target.files[0]);
       setAvatarUrl(imageUrl); // Set the temporary URL to state
       setAvatar(event.target.files[0]);
+      console.log(imageUrl);
     } 
   };
 
