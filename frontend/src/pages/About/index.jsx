@@ -45,15 +45,9 @@ const About = () => {
               </p>
             </div>
             <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
-              {/* <p className="text-white font-normal">
-                Software engineering (SE) is an engineering discipline
-                concerning all aspects of software production, including
-                software analysis, design, development, testing, and deployment.
-                SE requires profound abstract and logical thinking and the
-                application of mathematics, logic, and computer science in order
-                to produce efficient and reliable software with the available
-                resources.
-              </p> */}
+              <p className="text-white font-normal">
+                Software engineering involves the end-to-end process of creating efficient and reliable software, requiring abstract thinking, logical reasoning, and the application of mathematics and computer science.
+              </p>
             </div>
           </div>
         </div>
@@ -79,16 +73,15 @@ const About = () => {
           <div className="flip-container">
             <div className="flip-card-front">
               <p className="text-cream-text font-normal">
-                Job Opportunities: Careers
+                Job Openings: Careers
                 <br />
                 in Software Engineering
               </p>
             </div>
             <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
-              {/* <p className="text-black font-normal">
-                Software engineers, architects, and developers specializing in
-                enterprise, web, mobile, gaming, and embedded platforms.
-              </p> */}
+              <p className="text-black font-normal">
+                Software engineers, architects, and more!
+              </p>
             </div>
           </div>
         </div>
@@ -108,24 +101,9 @@ const About = () => {
               </p>
             </div>
             <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
-              {/* <p className="text-black font-normal">
-                It is hard to overstate the ubiquity of software nowadays. Every
-                computer system is governed by software. Almost every human
-                activity involves software in some form. Undoubtedly software
-                industry is one of the largest and fastest growing industries in
-                the world. Consequently, skilled software engineers are in high
-                demand worldwide. As software becomes more and more complex, the
-                programming skills and the rudimentary knowledge of software
-                engineering that students obtained from traditional computer
-                science and computer engineering curriculums are insufficient.
-                The development of real-world software applications requires the
-                skills in analysing the problem domain and the customer’s
-                requirement and the skills in designing the software from the
-                topmost level down to the implementation level. Moreover, a
-                software engineer must be able to use proper tools, techniques,
-                and methodologies in order to produce the software in an
-                efficient manner.
-              </p> */}
+              <p className="text-black font-normal">
+                Engineer success with Software Engineering: innovate, lead, thrive.
+              </p>
             </div>
           </div>
         </div>

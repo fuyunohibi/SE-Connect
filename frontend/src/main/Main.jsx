@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navbar, Footer } from '@/components/global';
-import { HomePage, IntroPage, AboutPage, InsiderPage, ContactPage, NewsPage, NewsDetail, Login, LoginPassword, Register, RegisterPassword, RegisterUserDetails, RoomReservation } from '@/pages';
+import { HomePage, IntroPage, AboutPage, InsiderPage, AdmissionPage, ProgramPage, ConnectionPage, EventPage, ContactPage, NewsPage, NewsDetail, Login, LoginPassword, Register, RegisterPassword, RegisterUserDetails, RoomReservation } from '@/pages';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import useUserStore from "@/store/useUserStore";
@@ -45,6 +45,11 @@ const Main = () => {
             </>
           }
         />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/admissions" element={<AdmissionPage />} />
+        <Route path="/programs" element={<ProgramPage />} />
+        <Route path="/connections" element={<ConnectionPage />} />
+        <Route path="/events" element={<EventPage />} />
         <Route
           path="/room-reservation"
           element={
