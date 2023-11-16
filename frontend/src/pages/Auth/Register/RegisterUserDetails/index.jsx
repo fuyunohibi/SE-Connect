@@ -42,8 +42,12 @@ const RegisterUserDetails = () => {
       setAvatarUrl(imageUrl); // Set the temporary URL to state
       setAvatar(event.target.files[0]);
       console.log(imageUrl);
-    } 
+    } else {
+      // If no avatar is selected, set it to null or some default value
+      setAvatar(null);
+    }
   };
+
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -63,17 +67,20 @@ const RegisterUserDetails = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // Check if avatar is present
+    const avatar = userProfile.avatar instanceof File ? userProfile.avatar : null;
+
     Authentication.registerUserDetails(
       userProfile.registrationID,
       userProfile.firstName,
       userProfile.lastName,
       userProfile.KmitlID,
       userProfile.yearOfStudy,
-      userProfile.avatar
+      avatar
     )
       .then((res) => {
         console.log("Response: ", res);
-        console.log("ACCESS TOKEN:", res.access_token)
+        console.log("ACCESS TOKEN:", res.access_token);
         if (res.access_token) {
           authenticateUser(res.access_token, res.user);
           const userData = res.user;
@@ -85,11 +92,7 @@ const RegisterUserDetails = () => {
           setLastName(userData.lastname);
           localStorage.setItem("userProfile", JSON.stringify(userData));
 
-
-          console.log(
-            "User details registration uccessful & now logged in:",
-            res
-          );
+          console.log("User details registration successful & now logged in:", res);
           navigate("/");
         } else {
           console.error("Register & Login successful, but no token received.");
@@ -99,6 +102,7 @@ const RegisterUserDetails = () => {
         console.error("Error registering user details:", err);
       });
   };
+
 
   useEffect(() => {
     if (userProfile.email.includes("@kmitl.ac.th")) {
