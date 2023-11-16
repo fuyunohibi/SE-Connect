@@ -78,10 +78,10 @@ async def request_booking(booking: BookingRequest):
     if booking.availability["startTime"] >= booking.availability["endTime"]:
         raise HTTPException(status_code=400, detail="Bad Request: Invalid Time Slot")
 
+    booking.date = datetime.strptime(booking.date, "%d/%m/%Y")
     if not is_available(booking) or booking.status == ReservationStatusEnum.success:
         raise HTTPException(status_code=409, detail="Conflict: Room is Unavailable")
 
-    booking.date = datetime.strptime(booking.date, "%d/%m/%Y")
     booking.status = ReservationStatusEnum.success
     root[booking.requestID] = booking
     transaction.commit()

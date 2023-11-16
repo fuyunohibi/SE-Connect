@@ -222,6 +222,7 @@ const DashboardContent = () => {
       },
       status: "idle", // TODO: Change to "Pending" when backend is ready
       bookedBy: {
+        avatar: `http://localhost:8000/${userProfile.avatar.replace(/\\/g,"/")}`,
         firstname: userProfile.firstName,
         lastname: userProfile.lastName,
         yearOfStudy: userProfile.yearOfStudy,
@@ -317,12 +318,13 @@ const DashboardContent = () => {
                       status,
                       date,
                     } = reservation;
-                    const { firstname, yearOfStudy, phoneNumber } =
+                    const { avatar, firstname, yearOfStudy, phoneNumber } =
                       bookedBy || {};
                     const { startTime, endTime } = availability || {};
                     return (
                       <ReservationCard
                         key={reservation.requestID}
+                        avatar={avatar}
                         firstName={firstname}
                         phoneNumber={phoneNumber}
                         yearOfStudy={yearOfStudy}
