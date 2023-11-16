@@ -132,9 +132,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # NOTE: Save the uploaded file
 def save_uploaded_file(contents, filename, user_id):
-    if not contents:
+    if contents == b'/src/assets/images/Auth/DefaultUserProfile.svg':
         return DEFAULT_SVG_CONTENT
-    
+
     user_directory = os.path.join(UPLOAD_FOLDER, user_id)
     os.makedirs(user_directory, exist_ok=True)
     file_path = os.path.join(user_directory, filename)
@@ -152,6 +152,7 @@ async def register_user_details(
     year_of_study: str = Form(...),
     profile_picture: UploadFile = Optional[File(None)],
 ):
+    print(profile_picture)
     try:
         registration_data = in_progress_registrations.get(registration_id)
         if not registration_data:
@@ -167,6 +168,7 @@ async def register_user_details(
             )
 
         contents = await profile_picture.read()
+        print(contents)
         unique_filename = f"{uuid.uuid4()}.jpeg"
         file_path = save_uploaded_file(contents, unique_filename, ID)
 

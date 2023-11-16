@@ -37,38 +37,21 @@ class Authentication {
   }
 
   static registerUserDetails(registration_id, firstname, lastname, ID, year_of_study, profile_picture) {
-    console.log("registration_id:", registration_id);
-    console.log("firstname:", firstname);
-    console.log("lastname:", lastname);
-    console.log("ID:", ID);
-    console.log("year_of_study:", year_of_study);
-    console.log("profile_picture:", profile_picture);
     const formData = new FormData();
     formData.append("registration_id", registration_id);
     formData.append("firstname", firstname);
     formData.append("lastname", lastname);
     formData.append("ID", ID);
     formData.append("year_of_study", year_of_study);
-    // if (profile_picture == "/src/assets/images/Auth/DefaultUserProfile.svg") {
-    //   console.log("Default profile picture");
-    //   formData.append("profile_picture", "files/profileImages/default.svg");
-    // } else {
-    //   console.log("Custom profile picture");
-    //   formData.append("profile_picture", profile_picture);
-    // }
-    if (profile_picture) {
-        formData.append("profile_picture", profile_picture, profile_picture.name);
-    }
-    console.log(formData);
+    formData.append("profile_picture", profile_picture);
 
     const config = {
       method: HTTP_METHODS.post,
       url: `/auth/signup/user-details`,
       headers: {
         // No need to set Content-Type for FormData, it will be set automatically
-        'Content-Type': 'multipart/form-data',
       },
-      data: formData,
+      body: formData,
     };
 
     return request(config)

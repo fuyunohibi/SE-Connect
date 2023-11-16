@@ -67,8 +67,21 @@ const RegisterUserDetails = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    const getDefaultAvatarFile = () => {
+      const defaultAvatarUrl = "/src/assets/images/Auth/DefaultUserProfile.svg";
+      const defaultFileName = "default_avatar.svg";
+
+      // Create a Blob with the placeholder data
+      const blob = new Blob([defaultAvatarUrl], { type: 'image/svg+xml' });
+
+      // Create a File object
+      const defaultAvatarFile = new File([blob], defaultFileName, { type: 'image/svg+xml' });
+
+      return defaultAvatarFile;
+    }
+
     // Check if avatar is present
-    const avatar = userProfile.avatar instanceof File ? userProfile.avatar : null;
+    const avatar = userProfile.avatar instanceof File ? userProfile.avatar : getDefaultAvatarFile();
 
     Authentication.registerUserDetails(
       userProfile.registrationID,
@@ -110,15 +123,6 @@ const RegisterUserDetails = () => {
       setKmitlID(id);
     }
   }, [userProfile.email, setKmitlID]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     // Revoke the object URL when the component is unmounted
-  //     if (avatarUrl) {
-  //       URL.revokeObjectURL(avatarUrl);
-  //     }
-  //   };
-  // }, [avatarUrl]);
 
 
   return (
