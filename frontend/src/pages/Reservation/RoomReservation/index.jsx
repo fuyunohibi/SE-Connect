@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
-import { TextField } from "@mui/material";
+import {
+  Menu,
+  MenuItem,
+  TextField,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -11,6 +15,7 @@ import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import PhoneIcon from "@mui/icons-material/Phone";
 import RoomBooking from "@/lib/api/roomBooking";
 import { useInfiniteQuery } from "react-query";
+import { useQueryClient } from "react-query";
 import useUserStore from "@/store/useUserStore";
 
 const RoomReservationSidebarData = [
@@ -51,27 +56,80 @@ const RoomReservation = () => {
 
 export default RoomReservation;
 
-const TitleBar = ({ title }) => {
-  const currentDate = dayjs().format("DD MMM, YYYY");
+const TitleBar = ({
+  title,
+  buttonTitle,
+  showButton = false,
+  handleDateChange,
+  uniqueDates,
+}) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div className="flex justify-between items-end pb-6">
-      <h1 className="text-lg font-semibold  text-gray-500">{title}</h1>
-      <p className="text-sm font-semibold">{currentDate}</p>
+      <h1 className="text-lg font-semibold text-gray-500">{title}</h1>
+      {showButton ? (
+        <>
+          <button
+            className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-gray-200 hover:scale-105 transition-all duration-300"
+            aria-controls="date-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            {buttonTitle}
+          </button>
+          <Menu
+            id="date-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={open}
+            onClose={handleClose}
+          >
+            <MenuItem
+              onClick={() => {
+                handleDateChange("all");
+                handleClose();
+              }}
+              value="all"
+            >
+              All Dates
+            </MenuItem>
+            {uniqueDates.map((date) => (
+              <MenuItem
+                key={date}
+                onClick={() => {
+                  handleDateChange(date);
+                  handleClose();
+                }}
+              >
+                {dayjs(date).format("DD MMM, YYYY")}
+              </MenuItem>
+            ))}
+          </Menu>
+        </>
+      ) : null}
     </div>
   );
 };
 
 const DashboardContent = () => {
-
   const navigate = useNavigate();
-   const { userProfile } = useUserStore();
+  const queryClient = useQueryClient();
+  const { userProfile } = useUserStore();
 
   useEffect(() => {
     console.log("FROM ROOM RESERVATION");
     console.log(userProfile.firstName);
     console.log(userProfile.lastName);
     console.log(userProfile.yearOfStudy);
-  }, [])
+  }, []);
 
   const fetchReservations = async ({ pageParam = 1 }) => {
     try {
@@ -82,20 +140,19 @@ const DashboardContent = () => {
       return data;
     } catch (error) {
       console.error("Error fetching reservations:", error);
-      throw error; 
+      throw error;
     }
   };
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery("reservations", fetchReservations, {
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.nextPage;
-    },
-  });
-
+  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
+    "reservations",
+    fetchReservations,
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.nextPage;
+      },
+    }
+  );
 
   const handleScroll = (event) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
@@ -125,6 +182,7 @@ const DashboardContent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [filterDate, setFilterDate] = useState("all"); // "all" as default value
 
   const triggerShakeAnimation = () => {
     setShakePhoneNumber(true);
@@ -137,21 +195,21 @@ const DashboardContent = () => {
   };
 
   const handleBooking = () => {
-     setErrorMessage("");
+    setErrorMessage("");
 
-     if (
-       !selectedBuilding ||
-       !selectedRoom ||
-       !selectedDate ||
-       !selectedTime ||
-       !phoneNumber
-     ) {
-       if (!phoneNumber) {
-        triggerShakeAnimation(); 
-       }
-       setErrorMessage("Please fill in all the information first.");
-       return; 
-     }
+    if (
+      !selectedBuilding ||
+      !selectedRoom ||
+      !selectedDate ||
+      !selectedTime ||
+      !phoneNumber
+    ) {
+      if (!phoneNumber) {
+        triggerShakeAnimation();
+      }
+      setErrorMessage("Please fill in all the information first.");
+      return;
+    }
 
     const bookingDetails = {
       ID: selectedRoom.name,
@@ -164,7 +222,6 @@ const DashboardContent = () => {
       },
       status: "idle", // TODO: Change to "Pending" when backend is ready
       bookedBy: {
-        avatar: `http://localhost:8000/${userProfile.avatar.replace(/\\/g,"/")}`,
         firstname: userProfile.firstName,
         lastname: userProfile.lastName,
         yearOfStudy: userProfile.yearOfStudy,
@@ -175,12 +232,16 @@ const DashboardContent = () => {
       .then((res) => {
         console.log("Booking Successful:", res);
         handleClearStateData();
+
+        queryClient.invalidateQueries("reservations");
         navigate("/room-reservation");
       })
       .catch((err) => {
         if (err.response && err.response.data) {
           if (err.response.status === 409) {
-            setErrorMessage("This room is already booked at the selected time.");
+            setErrorMessage(
+              "This room is already booked at the selected time."
+            );
             return;
           }
           console.error("Detailed error message:", err.response.data.detail);
@@ -189,7 +250,7 @@ const DashboardContent = () => {
         }
       });
   };
-  
+
   const handleClearStateData = () => {
     setSelectedBuilding("");
     setPhoneNumber("");
@@ -197,12 +258,38 @@ const DashboardContent = () => {
     setSelectedTime("");
     setSelectedRoom("");
     setPhoneNumber("");
-  }
+  };
+
+  const handleDateChange = (date) => {
+    setFilterDate(date);
+  };
+
+  const uniqueDates = new Set();
+  data?.pages.forEach((page) =>
+    page.forEach((reservation) => uniqueDates.add(reservation.date))
+  );
+
+  const getFormattedDateForButton = () => {
+    if (filterDate === "all") {
+      return "All";
+    } else {
+      return dayjs(filterDate).format("DD MMM");
+    }
+  };
+
+  const buttonTitle = getFormattedDateForButton();
 
   if (location.pathname === "/room-reservation") {
     content = (
       <div className="flex flex-col w-full mb-24">
-        <TitleBar title="Reserved" date="15 Nov, 2023" />
+        <TitleBar
+          title="Reserved"
+          date="15 Nov, 2023"
+          showButton
+          buttonTitle={buttonTitle}
+          handleDateChange={handleDateChange}
+          uniqueDates={[...uniqueDates]}
+        />
         <div
           className="flex flex-col space-y-6 items-start h-full w-full
             md:flex-row md:justify-between md:space-x-6 md:space-y-0 
@@ -216,28 +303,38 @@ const DashboardContent = () => {
           >
             {data?.pages.map((page, i) => (
               <React.Fragment key={i}>
-                {page.map((reservation) => {
-                  const { bookedBy, availability, ID, building, status, date } =
-                    reservation;
-                  const { avatar, firstname, yearOfStudy, phoneNumber } =
-                    bookedBy || {};
-                  const { startTime, endTime } = availability || {};
-                  return (
-                    <ReservationCard
-                      key={reservation.requestID}
-                      avatar={avatar}
-                      firstName={firstname}
-                      phoneNumber={phoneNumber}
-                      yearOfStudy={yearOfStudy}
-                      date={date}
-                      startTime={startTime}
-                      endTime={endTime}
-                      building={building}
-                      roomID={ID}
-                      reservationStatus={status}
-                    />
-                  );
-                })}
+                {page
+                  .filter(
+                    (reservation) =>
+                      filterDate === "all" || reservation.date === filterDate
+                  )
+                  .map((reservation) => {
+                    const {
+                      bookedBy,
+                      availability,
+                      ID,
+                      building,
+                      status,
+                      date,
+                    } = reservation;
+                    const { firstname, yearOfStudy, phoneNumber } =
+                      bookedBy || {};
+                    const { startTime, endTime } = availability || {};
+                    return (
+                      <ReservationCard
+                        key={reservation.requestID}
+                        firstName={firstname}
+                        phoneNumber={phoneNumber}
+                        yearOfStudy={yearOfStudy}
+                        date={date}
+                        startTime={startTime}
+                        endTime={endTime}
+                        building={building}
+                        roomID={ID}
+                        reservationStatus={status}
+                      />
+                    );
+                  })}
               </React.Fragment>
             ))}
           </div>
@@ -309,7 +406,6 @@ const DashboardContent = () => {
     </div>
   );
 };
-
 const ReservationCard = ({
   avatar,
   firstName,
