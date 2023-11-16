@@ -16,6 +16,7 @@ import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import LoginModal from "@/components/global/Modals/LoginModal";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "@/components/AuthProvider";
+import useUserStore from "@/store/useUserStore";
 
 const NavbarData = [
   {
@@ -93,6 +94,8 @@ const Navbar = () => {
       : []),
   ];
 
+  const { userProfile } = useUserStore();
+
   return (
     <nav
       className="fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
@@ -110,9 +113,15 @@ const Navbar = () => {
         onClick={toggleLoginModal}
       >
         <img
-          src={SoftwareEngineeringLogo} // TODO: ADD HERE
+          src={
+            authState.isAuthenticated
+            ? `http://localhost:8000/${userProfile.avatar.replace(
+              /\\/g,
+              "/"
+            )}`
+            : SoftwareEngineeringLogo} // TODO: ADD HERE
           alt="Logo"
-          className="object-contain w-full h-full"
+          className="object-cover w-full h-full rounded-full scale-110"
         />
       </button>
       <button

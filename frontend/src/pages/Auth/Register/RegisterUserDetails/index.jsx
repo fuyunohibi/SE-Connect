@@ -42,9 +42,6 @@ const RegisterUserDetails = () => {
       setAvatarUrl(imageUrl); // Set the temporary URL to state
       setAvatar(event.target.files[0]);
       console.log(imageUrl);
-    } else {
-      // If no avatar is selected, set it to null or some default value
-      setAvatar(null);
     }
   };
 
