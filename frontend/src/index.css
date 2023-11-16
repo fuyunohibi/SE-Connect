@@ -166,7 +166,7 @@
 
 
 .reservation-list {
-  max-height: 41rem; 
+  max-height: 100rem; 
   overflow-y: scroll;
 
   &::-webkit-scrollbar {

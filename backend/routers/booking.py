@@ -95,7 +95,12 @@ async def request_booking(booking: BookingRequest):
 
 
 @router.get("/reservation/all", response_model=list)
-def get_all_rooms():
+def get_all_reservations():
+    sorted_bookings = sorted(
+        root.values(), 
+        key=lambda booking: booking.date, 
+        reverse=True  
+    )
     return [
         BookingResponse(
             requestID=booking.requestID,
@@ -106,7 +111,7 @@ def get_all_rooms():
             date=booking.date,
             bookedBy=booking.bookedBy,
         )
-        for booking in root.values()
+        for booking in sorted_bookings
         if isinstance(booking, BookingRequest)
     ]
 
