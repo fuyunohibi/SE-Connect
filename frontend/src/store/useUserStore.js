@@ -58,7 +58,6 @@ const useUserStore = create((set) => ({
     set((state) => ({
       userProfile: { ...state.userProfile, KmitlID: "" },
     })),
-
   setYearOfStudy: (yearOfStudy) => set((state) => {
     let suffix;
     switch (parseInt(yearOfStudy)) {
@@ -74,11 +73,16 @@ const useUserStore = create((set) => ({
       default:
         suffix = "th";
     }
+    const formattedYear = yearOfStudy + suffix + " year";
+
     return {
-      userProfile: { ...state.userProfile, yearOfStudy: yearOfStudy + suffix + " year" }
+      userProfile: {
+        ...state.userProfile,
+        yearOfStudy: formattedYear,
+        displayedYearOfStudy: yearOfStudy,
+      },
     };
   }),
-
   clearYearOfStudy: () =>
     set((state) => ({
       userProfile: { ...state.userProfile, yearOfStudy: "" },

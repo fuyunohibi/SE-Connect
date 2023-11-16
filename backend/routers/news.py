@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Form, File, UploadFile
 from pydantic import BaseModel
 from .database import init_db
 from .booking import generate_random_string
-from typing import List, Dict
+from typing import List
 from datetime import datetime
 import transaction, uuid, os
 

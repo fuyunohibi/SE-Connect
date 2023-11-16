@@ -164,6 +164,7 @@ const DashboardContent = () => {
       },
       status: "idle", // TODO: Change to "Pending" when backend is ready
       bookedBy: {
+        avatar: `http://localhost:8000/${userProfile.avatar.replace(/\\/g,"/")}`,
         firstname: userProfile.firstName,
         lastname: userProfile.lastName,
         yearOfStudy: userProfile.yearOfStudy,
@@ -218,12 +219,13 @@ const DashboardContent = () => {
                 {page.map((reservation) => {
                   const { bookedBy, availability, ID, building, status, date } =
                     reservation;
-                  const { firstname, yearOfStudy, phoneNumber } =
+                  const { avatar, firstname, yearOfStudy, phoneNumber } =
                     bookedBy || {};
                   const { startTime, endTime } = availability || {};
                   return (
                     <ReservationCard
                       key={reservation.requestID}
+                      avatar={avatar}
                       firstName={firstname}
                       phoneNumber={phoneNumber}
                       yearOfStudy={yearOfStudy}
@@ -309,6 +311,7 @@ const DashboardContent = () => {
 };
 
 const ReservationCard = ({
+  avatar,
   firstName,
   phoneNumber,
   yearOfStudy,
@@ -325,7 +328,7 @@ const ReservationCard = ({
         <p className="text-gray-500 font-semibold">Name</p>
         <div className="flex justify-between space-x-4 mt-4">
           <div className="rounded-full h-12 w-12 ">
-            <img src={DefaultUserProfile} alt="User Profile" />
+            <img src={avatar} alt="User Profile" className="object-cover w-full h-full rounded-full scale-110" />
           </div>
           <div>
             <p className="text-black font-semibold">{firstName ?? "-"}</p>
