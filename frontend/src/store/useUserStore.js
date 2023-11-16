@@ -59,10 +59,26 @@ const useUserStore = create((set) => ({
       userProfile: { ...state.userProfile, KmitlID: "" },
     })),
 
-  setYearOfStudy: (yearOfStudy) =>
-    set((state) => ({
-      userProfile: { ...state.userProfile, yearOfStudy },
-    })),
+  setYearOfStudy: (yearOfStudy) => set((state) => {
+    let suffix;
+    switch (parseInt(yearOfStudy)) {
+      case 1:
+        suffix = "st";
+        break;
+      case 2:
+        suffix = "nd";
+        break;
+      case 3:
+        suffix = "rd";
+        break;
+      default:
+        suffix = "th";
+    }
+    return {
+      userProfile: { ...state.userProfile, yearOfStudy: yearOfStudy + suffix + " year" }
+    };
+  }),
+
   clearYearOfStudy: () =>
     set((state) => ({
       userProfile: { ...state.userProfile, yearOfStudy: "" },

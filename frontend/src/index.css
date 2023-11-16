@@ -164,9 +164,24 @@
   20%, 40%, 60%, 80% { transform: translateX(10px); }
 }
 
+/* ============= Scroll bar  ============= */
+@layer utilities {
+    @variants responsive {
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+    }
+  }
 
 .reservation-list {
-  max-height: 100rem; 
+  max-height: 400rem; 
   overflow-y: scroll;
 
   &::-webkit-scrollbar {

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
+import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -10,6 +11,7 @@ import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import PhoneIcon from "@mui/icons-material/Phone";
 import RoomBooking from "@/lib/api/roomBooking";
 import { useInfiniteQuery } from "react-query";
+import useUserStore from "@/store/useUserStore";
 
 const RoomReservationSidebarData = [
   {
@@ -60,7 +62,16 @@ const TitleBar = ({ title }) => {
 };
 
 const DashboardContent = () => {
+
   const navigate = useNavigate();
+   const { userProfile } = useUserStore();
+
+  useEffect(() => {
+    console.log("FROM ROOM RESERVATION");
+    console.log(userProfile.firstName);
+    console.log(userProfile.lastName);
+    console.log(userProfile.yearOfStudy);
+  }, [])
 
   const fetchReservations = async ({ pageParam = 1 }) => {
     try {
@@ -88,13 +99,25 @@ const DashboardContent = () => {
 
   const handleScroll = (event) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+
+    console.log(
+      `ScrollTop: ${scrollTop}, ScrollHeight: ${scrollHeight}, ClientHeight: ${clientHeight}`
+    );
+    console.log(
+      `Condition Check: ${scrollHeight - scrollTop === clientHeight}`
+    );
+
     if (scrollHeight - scrollTop === clientHeight && hasNextPage) {
+      console.log("Bottom reached, fetching next page");
       fetchNextPage();
     }
   };
 
   let content;
 
+  const phoneNumberRef = useRef(null);
+
+  const [shakePhoneNumber, setShakePhoneNumber] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -102,6 +125,16 @@ const DashboardContent = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
+
+  const triggerShakeAnimation = () => {
+    setShakePhoneNumber(true);
+    setTimeout(() => {
+      setShakePhoneNumber(false);
+      if (emailRef.current) {
+        emailRef.current.focus();
+      }
+    }, 500);
+  };
 
   const handleBooking = () => {
      setErrorMessage("");
@@ -113,6 +146,9 @@ const DashboardContent = () => {
        !selectedTime ||
        !phoneNumber
      ) {
+       if (!phoneNumber) {
+        triggerShakeAnimation(); 
+       }
        setErrorMessage("Please fill in all the information first.");
        return; 
      }
@@ -128,14 +164,16 @@ const DashboardContent = () => {
       },
       status: "idle", // TODO: Change to "Pending" when backend is ready
       bookedBy: {
-        firstname: "John", // TODO: Replace with actual data if available
-        lastname: "Doe", // TODO: Replace with actual data if available
+        firstname: userProfile.firstName,
+        lastname: userProfile.lastName,
+        yearOfStudy: userProfile.yearOfStudy,
         phoneNumber: phoneNumber,
       },
     };
     RoomBooking.requestBooking({ body: bookingDetails })
       .then((res) => {
         console.log("Booking Successful:", res);
+        handleClearStateData();
         navigate("/room-reservation");
       })
       .catch((err) => {
@@ -151,33 +189,45 @@ const DashboardContent = () => {
       });
   };
   
+  const handleClearStateData = () => {
+    setSelectedBuilding("");
+    setPhoneNumber("");
+    setSelectedDate("");
+    setSelectedTime("");
+    setSelectedRoom("");
+    setPhoneNumber("");
+  }
+
   if (location.pathname === "/room-reservation") {
     content = (
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full mb-24">
         <TitleBar title="Reserved" date="15 Nov, 2023" />
         <div
-          className="flex flex-col space-y-6 items-start
-            md:flex-row md:justify-between md:space-x-6 md:space-y-0 pb-32
+          className="flex flex-col space-y-6 items-start h-full w-full
+            md:flex-row md:justify-between md:space-x-6 md:space-y-0 
           "
         >
           <div
-            className="reservation-list flex flex-col space-y-6 items-start w-full"
+            className="flex flex-col space-y-6 items-start w-full h-[39rem] overflow-y-scroll
+              no-scrollbar
+            "
             onScroll={handleScroll}
           >
             {data?.pages.map((page, i) => (
               <React.Fragment key={i}>
                 {page.map((reservation) => {
-                  const { bookedBy, availability, ID, building, status } =
+                  const { bookedBy, availability, ID, building, status, date } =
                     reservation;
-                  const { firstName, lastName, phoneNumber } = bookedBy || {};
+                  const { firstname, yearOfStudy, phoneNumber } =
+                    bookedBy || {};
                   const { startTime, endTime } = availability || {};
                   return (
                     <ReservationCard
                       key={reservation.requestID}
-                      firstName={firstName}
-                      lastName={lastName}
+                      firstName={firstname}
                       phoneNumber={phoneNumber}
-                      yearOfStudy="ADD ADD"
+                      yearOfStudy={yearOfStudy}
+                      date={date}
                       startTime={startTime}
                       endTime={endTime}
                       building={building}
@@ -208,11 +258,11 @@ const DashboardContent = () => {
       <div className="flex flex-col w-full">
         <TitleBar title="Create a Reservation" />
         <div
-          className="reservation-list flex flex-col space-y-6 items-start
-            md:flex-row md:justify-between md:space-x-6 md:space-y-0 pb-32
+          className="flex flex-col space-y-6 items-start 
+            md:flex-row md:justify-between md:space-x-6 md:space-y-0 pb-32 
           "
         >
-          <div className="w-full space-y-2">
+          <div className="reservation-list w-full h-[100rem] md:h-[39rem] overflow-y-scroll space-y-2">
             <BuildingSelectionCard onBuildingSelect={setSelectedBuilding} />
             {selectedBuilding ? (
               <RoomSelectionCard
@@ -222,7 +272,11 @@ const DashboardContent = () => {
             ) : null}
             <DateSelectionCard onDateSelect={setSelectedDate} />
             <TimeSelectionCard onTimeSelect={setSelectedTime} />
-            <MobileInputCard onPhoneNumberChange={setPhoneNumber} />
+            <MobileInputCard
+              onPhoneNumberChange={setPhoneNumber}
+              ref={phoneNumberRef}
+              shakePhoneNumber={shakePhoneNumber}
+            />
           </div>
 
           <div className="flex w-full">
@@ -256,9 +310,9 @@ const DashboardContent = () => {
 
 const ReservationCard = ({
   firstName,
-  lastName,
   phoneNumber,
   yearOfStudy,
+  date,
   startTime,
   endTime,
   building,
@@ -266,7 +320,7 @@ const ReservationCard = ({
   reservationStatus,
 }) => {
   return (
-    <div className="flex justify-between px-8 py-6 rounded-xl bg-white w-full">
+    <div className="relative flex justify-between px-8 py-6 rounded-xl bg-white w-full">
       <div>
         <p className="text-gray-500 font-semibold">Name</p>
         <div className="flex justify-between space-x-4 mt-4">
@@ -274,10 +328,8 @@ const ReservationCard = ({
             <img src={DefaultUserProfile} alt="User Profile" />
           </div>
           <div>
-            <p className="text-black font-semibold">
-              {firstName} {lastName}
-            </p>
-            <p className=" text-gray-600 font-semibold">{yearOfStudy}</p>
+            <p className="text-black font-semibold">{firstName ?? "-"}</p>
+            <p className=" text-gray-600 font-semibold">{yearOfStudy ?? "-"}</p>
           </div>
         </div>
         <div className="space-y-3 mt-10">
@@ -286,7 +338,7 @@ const ReservationCard = ({
         </div>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col ">
         <div>
           <p className="text-gray-500 font-semibold">Time/place</p>
           <p className="mt-4 text-black font-semibold">
@@ -324,7 +376,6 @@ const BuildingSelectionCard = ({ onBuildingSelect }) => {
     );
     onBuildingSelect(selectedBuilding);
   };
-
 
   return (
     <div className="flex flex-col justify-start items-start bg-white px-5 py-6 rounded-xl">
@@ -512,21 +563,34 @@ const TimeSelectionCard = ({ onTimeSelect }) => {
 
 
 
-const MobileInputCard = ({ onPhoneNumberChange }) => {
+const MobileInputCard = ({ onPhoneNumberChange, ref, shakePhoneNumber }) => {
   return (
-    <div className="flex flex-row justify-start items-start bg-white px-5 py-6 rounded-xl">
+    <div className="flex flex-row justify-start items-start bg-white px-5 py-6 pb-10 rounded-xl">
       <div className="mr-5 text-primary">
         <PhoneIcon />
       </div>
       <div>
         <h1 className=" font-semibold  text-black">Mobile Number</h1>
-        <p className="   text-gray-500">
+        <p className="mb-3  text-gray-500">
           Enter the number on which you want to reserve the room
         </p>
-        <input
+        <TextField
+          required
           type="text"
+          inputRef={ref}
           onChange={(e) => onPhoneNumberChange(e.target.value)}
-          className="w-full h-10 mt-3 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          sx={{
+            animation: shakePhoneNumber
+              ? "shake 0.82s cubic-bezier(.36,.07,.19,.97) both"
+              : "none",
+            "& .MuiOutlinedInput-root": {
+              "&.Mui-focused fieldset": {
+                borderColor:
+                  shakePhoneNumber ? "#d0514a" : "#d0514a",
+              },
+            },
+          }}
+          className="w-full h-10  px-4 py-2 m rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
     </div>
