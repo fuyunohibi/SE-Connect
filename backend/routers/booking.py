@@ -47,7 +47,8 @@ class BookingResponse(BaseModel):
     availability: Dict[str, str]
     date: datetime
     bookedBy: Dict[str, str]
-    
+
+
 def is_available(booking: BookingRequest):
     if booking.building not in valid_buildings:
         return False
@@ -76,13 +77,11 @@ def is_available(booking: BookingRequest):
 async def request_booking(booking: BookingRequest):
     if booking.availability["startTime"] >= booking.availability["endTime"]:
         raise HTTPException(status_code=400, detail="Bad Request: Invalid Time Slot")
-      
-    print(booking)
 
-    booking.date = datetime.strptime(booking.date, "%d/%m/%Y")
     if not is_available(booking) or booking.status == ReservationStatusEnum.success:
         raise HTTPException(status_code=409, detail="Conflict: Room is Unavailable")
 
+    booking.date = datetime.strptime(booking.date, "%d/%m/%Y")
     booking.status = ReservationStatusEnum.success
     root[booking.requestID] = booking
     transaction.commit()
@@ -97,10 +96,20 @@ async def request_booking(booking: BookingRequest):
 
 @router.get("/reservation/all", response_model=list)
 def get_all_reservations():
+    def get_date_key(booking):
+        if isinstance(booking.date, str):
+            try:
+                return datetime.strptime(booking.date, "%d/%m/%Y")
+            except ValueError:
+                # If parsing fails, handle it as needed or use a default datetime
+                return datetime.min
+        return booking.date
+
     sorted_bookings = sorted(
-        root.values(), 
-        key=lambda booking: booking.date, 
+        root.values(),
+        key=get_date_key,
     )
+
     return [
         BookingResponse(
             requestID=booking.requestID,
@@ -108,7 +117,7 @@ def get_all_reservations():
             ID=booking.ID,
             building=booking.building,
             availability=booking.availability,
-            date=booking.date,
+            date=get_date_key(booking),
             bookedBy=booking.bookedBy,
         )
         for booking in sorted_bookings

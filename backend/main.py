@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routers import login, booking
+from routers import login, booking, news
 from ZODB import DB, FileStorage
 import transaction
 from contextlib import contextmanager
@@ -22,3 +22,4 @@ app.add_middleware(
 # Include your routers
 app.include_router(login.router)
 app.include_router(booking.router)
+app.include_router(news.router)
