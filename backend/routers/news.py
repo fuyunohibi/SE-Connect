@@ -16,7 +16,6 @@ class NewsRequest(BaseModel):
     newsID: int = None
     title: str
     backgroundImage: Optional[str] = None
-    images: List[dict]
     content: str
     date: str = None
     author: str
@@ -46,7 +45,6 @@ def save_uploaded_file(contents, filename, authorID):
 async def request_booking(
     title: str = Form(...),
     backgroundImage: UploadFile = File(...),
-    images: List[UploadFile] = File(...),
     content: str = Form(...),
     author: str = Form(...),
     authorID: str = Form(...)
@@ -56,26 +54,16 @@ async def request_booking(
         unique_bg_filename = f"{uuid.uuid4()}.jpeg"
         bg_file_path = save_uploaded_file(bgImage, unique_bg_filename, authorID)
 
-        images_file_path = []
-        count = 1
-        for image in images:
-            image = await image.read()
-            unique_filename = f"{uuid.uuid4()}.jpeg"
-            file_path = save_uploaded_file(image, unique_filename, authorID)
-            images_file_path.append({"ID":str(count),"image":file_path})
-            count = count + 1
-
         news_db = NewsRequest(
             title=title,
             backgroundImage=bg_file_path,
-            images=images_file_path,
             content=content,
             author=author,
             authorID=authorID,
         )
         root[news_db.newsID] = news_db
         transaction.commit()
-        message = f"{news_db.title} has been posted!! at {news_db.date} "
+        message = f"{news_db.title} has been posted!! "
         return {"message": message}
     except HTTPException as e:
         raise e
