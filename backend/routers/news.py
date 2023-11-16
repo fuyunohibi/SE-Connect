@@ -42,7 +42,7 @@ def save_uploaded_file(contents, filename, authorID):
     return file_path
 
 
-@router.post("/news/post", response_model=dict)
+@router.post("/create/news", response_model=dict)
 async def request_booking(
     title: str = Form(...),
     backgroundImage: UploadFile = File(...),
