@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         isLoading: false,
         user: JSON.parse(userProfile),
       });
+      // logout();
     } else {
       setAuthState({
         token: null,

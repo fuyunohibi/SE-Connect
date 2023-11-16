@@ -110,7 +110,7 @@ const Navbar = () => {
         onClick={toggleLoginModal}
       >
         <img
-          src={SoftwareEngineeringLogo}
+          src={SoftwareEngineeringLogo} // TODO: ADD HERE
           alt="Logo"
           className="object-contain w-full h-full"
         />

@@ -155,13 +155,19 @@ const Navbar = ({ toggleMenu, toggleLoginModal }) => {
         onClick={toggleLoginModal}
       >
         <img
-          src={authState.isAuthenticated ? `http://localhost:8000/${userProfile.avatar.replace(/\\/g, '/')}` : DefaultUserProfile}
+          src={
+            authState.isAuthenticated
+              ? `http://localhost:8000/${userProfile.avatar.replace(
+                  /\\/g,
+                  "/"
+                )}`
+              : DefaultUserProfile
+          }
           alt="My Profile"
           type="file"
           accept="image/*"
-          className="object-contain w-full h-full"
+          className="object-cover w-full h-full rounded-full scale-110"
         />
-
       </button>
       <SELogo className="absolute left-0 right-0 -top-[1rem] scale-75" />
       <button
