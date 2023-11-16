@@ -214,7 +214,7 @@ const DashboardContent = () => {
 
   useEffect(() =>{
     handleFetchLatestUserReservation();
-  }, [])
+  }, [selectedBuilding, selectedRoom, selectedDate, selectedTime, phoneNumber])
   
 
   const handleBooking = () => {
