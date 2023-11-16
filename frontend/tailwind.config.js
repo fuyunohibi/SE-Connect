@@ -44,6 +44,8 @@ export default {
         },
         disabled: "#AAAAAA",
 
+        mainBackground: "#e9ebef",
+
         textFieldBorder: "#c5c5c4",
 
         button: {

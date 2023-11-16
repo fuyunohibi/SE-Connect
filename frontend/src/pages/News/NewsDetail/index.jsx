@@ -5,14 +5,17 @@ import { NavigateBackButton } from "@/components/global/Buttons";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 
 const NewsDetail = () => {
-  const { id } = useParams();
+  const { ID } = useParams();
+  console.log(ID);
   const isTablet = useCheckScreenSize("tablet");
   const [newsItem, setNewsItem] = useState(null);
 
   useEffect(() => {
-    const item = newsData.find((news) => news.id.toString() === id);
+    const item = newsData.find((news) => news.newsID.toString() === ID);
     setNewsItem(item);
-  }, [id]);
+    console.log(item);
+  }, [ID]);
+
 
   if (!newsItem) return <div>Loading...</div>;
 
@@ -21,12 +24,17 @@ const NewsDetail = () => {
       {!isTablet ? (
         <React.Fragment>
           <NavigateBackButton top={1} left={1} />
-          <img src={newsItem.image} alt="news" />
+          <img src={newsItem.backgroundImage} alt="news" />
           <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
             <p className="text-sm font-medium text-red-500 mb-2">
               {newsItem.date}
             </p>
             <h2 className="text-2xl font-bold mb-2">{newsItem.title}</h2>
+            <div className="flex items-center justify-end">
+              <p className="text-sm font-semibold text-gray-500">
+                {newsItem.author.name}
+              </p>
+            </div>
           </div>
           <div className="mx-4 py-10">
             <p className="text-sm text-gray-600 mb-2">{newsItem.content}</p>
@@ -34,7 +42,7 @@ const NewsDetail = () => {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <img src={newsItem.image} alt="news" />
+          <img src={newsItem.backgroundImage} alt="news" />
           <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
             <p className="text-sm font-medium text-red-500 mb-2">
               {newsItem.date}
@@ -44,7 +52,14 @@ const NewsDetail = () => {
           <div className="mx-4 py-10">
             <p className="text-sm text-gray-600 mb-2">{newsItem.content}</p>
           </div>
-          <NavigateBackButton useFixed useAnimation right={2} bottom={2} width={16} height={16} />
+          <NavigateBackButton
+            useFixed
+            useAnimation
+            right={2}
+            bottom={2}
+            width={16}
+            height={16}
+          />
         </React.Fragment>
       )}
     </React.Fragment>

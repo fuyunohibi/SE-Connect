@@ -62,7 +62,7 @@ const Main = () => {
           }
         />
         <Route path="/news" element={<NewsPage />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
+        <Route path="/news/:ID" element={<NewsDetail />} />
         <Route path="/auth/login/identifier" element={<Login />} />
         <Route path="/auth/login/password" element={<LoginPassword />} />
         <Route path="/auth/signup/identifier" element={<Register />} />

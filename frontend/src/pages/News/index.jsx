@@ -8,96 +8,90 @@ const News = () => {
   const isTablet = useCheckScreenSize("tablet");
 
   return (
-    <div className="max-w-2xl sm:max-w-full mx-auto p-4">
-      {!isTablet ? (
-        <div>
-          <div className="flex items-center space-x-4 mb-10">
-            <h1 className="text-3xl font-bold">Latest News</h1>
-            <hr className="flex-grow h-[0.1rem] my-0 border-0 bg-black" />
-          </div>
-          <div>
-            {newsData.map((news) => (
-              <div id={news.id} className="relative mb-4">
-                <div
-                  className="news-item flex flex-col mb-6"
-                  onClick={() => navigate(`/news/${news.id}`)}
-                >
+    <div className="max-w-2xl sm:max-w-full mx-auto p-4 bg-mainBackground">
+      <React.Fragment>
+        <div className="flex items-center space-x-4 mb-5 mt-6">
+          <h1 className="text-[2.45rem] leading-normal font-bold text-black">
+            Latest News
+          </h1>
+        </div>
+        <div className="flex flex-col 
+          md:flex-row md:space-x-5"
+        >
+          {newsData.length > 0 && (
+            <React.Fragment>
+              <div
+                key={newsData[0].newsID}
+                className="bg-white rounded-[3rem] pb-6 
+                  md:min-w-[30rem] 
+                "
+                onClick={() => navigate(`/news/${newsData[0].newsID}`)}
+              >
+                <div className="flex flex-col">
                   <img
-                    src={news.image}
+                    src={newsData[0].backgroundImage}
                     alt="news"
-                    className="object-cover w-full h-64 rounded-[2rem]"
+                    className="object-cover w-full rounded-[2rem]"
                   />
                 </div>
-                <div className="absolute bottom-5 left-5 flex w-[80%] flex-col space-y-1 z-40">
-                  <p className="text-sm font-medium text-red-500 bg-opacity-50">
-                    {news.date}
-                  </p>
-                  <h2 className="text-2xl font-bold text-white">
-                    {news.title}
+                <div className="px-4 pt-3">
+                  <h2 className="text-2xl font-bold text-black">
+                    {newsData[0].title}
                   </h2>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div className="flex items-center space-x-4 mb-10 md:mt-28">
-            <h1 className="text-3xl font-bold">Latest News</h1>
-            <hr className="flex-grow h-[0.1rem] my-0 border-0 bg-black" />
-          </div>
-          <div className="flex space-x-4">
-            {newsData.length > 0 && (
-              <React.Fragment>
-                <div id={newsData[0].id} className="relative mb-3 w-[80%]">
-                  <div
-                    className="news-item flex flex-col"
-                    onClick={() => navigate(`/news/${newsData[0].id}`)}
-                  >
-                    <img
-                      src={newsData[0].image}
-                      alt="news"
-                      className="object-cover w-full rounded-[2rem]"
-                    />
-                    <div className="flex w-[80%] absolute bottom-[5.5rem] left-4  flex-col  space-y-1 z-40 ">
-                      <p className="text-sm font-medium text-red-500 bg-opacity-50 -mt-5">
-                        {newsData[0].date}
-                      </p>
-                      <h2 className="text-2xl font-bold text-white">
-                        {newsData[0].title}
-                      </h2>
+                <div className="flex justify-between items-center px-4 pt-4">
+                  <div className="flex justify-start items-center">
+                    <div className="w-14 h-14 rounded-full mr-4">
+                      <img
+                        src={newsData[0].author.profileImage}
+                        alt="Profile image"
+                        className="w-full h-full object-cover rounded-full"
+                      />
                     </div>
+                    <p className="text-md font-semibold text-gray-500">
+                      {newsData[0].author.name}
+                    </p>
+                  </div>
+                  <div className="mr-3">
+                    <p className="text-md font-semibold text-gray-500">
+                      {newsData[0].date}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  {newsData.slice(1).map((news) => (
-                    <div key={news.id} className="relative mb-3">
-                      <div
-                        className="news-item flex flex-col"
-                        onClick={() => navigate(`/news/${news.id}`)}
-                      >
-                        <img
-                          src={news.image}
-                          alt="news"
-                          className="object-cover w-full h-72 rounded-[2rem]"
-                        />
-                      </div>
-                      <div className="absolute bottom-5 left-4 flex w-[80%] flex-col space-y-1 z-40">
-                        <p className="text-sm font-medium text-red-500 bg-opacity-50">
-                          {news.date}
-                        </p>
-                        <h2 className="text-2xl font-bold text-white">
-                          {news.title}
-                        </h2>
+              </div>
+
+              <div className="space-y-7 mt-10 w-full flex flex-col justify-center bg-red-500 
+                md:mt-0 md:justify-start
+              ">
+                {newsData.slice(1).map((news) => (
+                  <div
+                    key={news.newsID}
+                    className="rounded-xl flex w-full justify-start items-center "
+                    onClick={() => navigate(`/news/${news.newsID}`)}
+                  >
+                    <div className="w-24 h-[5rem] rounded-xl">
+                      <img
+                        src={newsData[0].backgroundImage}
+                        alt="news"
+                        className="object-cover w-full h-full rounded-[1rem]"
+                      />
+                    </div>
+                    <div className="flex flex-col justify-between ml-3 h-[5rem] w-full">
+                      <h2 className="text-md font-semibold text-black">
+                        {news.title}
+                      </h2>
+                      <div className="flex w-full justify-between text-gray-500 text-sm font-semibold">
+                        <p>{news.date}</p>
+                        <p>{news.author.name}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </React.Fragment>
-            )}
-          </div>
+                  </div>
+                ))}
+              </div>
+            </React.Fragment>
+          )}
         </div>
-      )}
+      </React.Fragment>
     </div>
   );
 };
