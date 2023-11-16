@@ -2,11 +2,11 @@ import { request } from "./index";
 import { HTTP_METHODS } from "./const";
 
 class NewsService {
-  static postNews(options) {
+  static createNews(newsData) {
     const config = {
       method: HTTP_METHODS.post,
       url: `/create/news`,
-      body: options.body,
+      body: newsData,
     };
 
     return request(config)

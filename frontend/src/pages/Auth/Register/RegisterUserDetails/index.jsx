@@ -45,7 +45,6 @@ const RegisterUserDetails = () => {
     }
   };
 
-
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
     console.log(userProfile.firstName);
