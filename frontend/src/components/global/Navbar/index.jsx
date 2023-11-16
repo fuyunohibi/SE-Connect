@@ -12,11 +12,13 @@ import {
   CloseIcon,
   AboutIcon,
 } from "@/assets/icons/Navbar";
+import AddIcon from "@mui/icons-material/Add";
 import useCheckScreenSize from "@/hooks/useCheckScreenSize";
 import LoginModal from "@/components/global/Modals/LoginModal";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "@/components/AuthProvider";
 import useUserStore from "@/store/useUserStore";
+import { useLocation } from "react-router-dom";
 
 const NavbarData = [
   {
@@ -63,11 +65,15 @@ const NavbarData = [
   },
 ];
 
-const Navbar = () => {
+const Navbar = ({ onToggleModal }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isNewsRoute = location.pathname.startsWith("/news");
+  const isRoomReservationRoute = location.pathname.startsWith("/room-reservation");
 
   const { authState } = useContext(AuthContext);
+  const { userProfile } = useUserStore();
 
-  const isLaptop = useCheckScreenSize("laptop");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -94,48 +100,77 @@ const Navbar = () => {
       : []),
   ];
 
-  const { userProfile } = useUserStore();
+  const handleNavigateToCreateRoomReservation = () => {
+    navigate("/create/room-reservation");
+  }
+
+  const handleToggleModal = () => {
+    if (isNewsRoute) {
+      onToggleModal();
+    } else if (isRoomReservationRoute) {
+      handleNavigateToCreateRoomReservation();
+    } else {
+      toggleMenu();
+    }
+  };
+
 
   return (
     <nav
-      className="fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
+      className={`fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
       z-50 h-14
       sm:mx-32 
-      md:top-2 md:bottom-auto md:mx-5 md:h-18 md:rounded-[4rem]
-      md:hidden
-      "
+      md:mx-56
+      md:h-20
+      lg:mx-80
+      xl:mx-96
+      ${isNewsRoute ? "md:block" : "md:hidden"}
+      `}
     >
       <button
         className="absolute top-1 left-2 flex 
           w-12 h-12 rounded-full 
-          md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] p-1
+          md:top-[0.35rem] p-1
+          md:h-[4.3rem] md:w-[4.3rem]
         "
         onClick={toggleLoginModal}
       >
         <img
           src={
             authState.isAuthenticated
-            ? `http://localhost:8000/${userProfile.avatar.replace(
-              /\\/g,
-              "/"
-            )}`
-            : SoftwareEngineeringLogo} // TODO: ADD HERE
+              ? `http://localhost:8000/${userProfile.avatar.replace(
+                  /\\/g,
+                  "/"
+                )}`
+              : SoftwareEngineeringLogo
+          } // TODO: ADD HERE
           alt="Logo"
           className="object-cover w-full h-full rounded-full scale-110"
         />
       </button>
       <button
-        onClick={toggleMenu}
+        onClick={handleToggleModal}
         className={`absolute right-2 flex justify-center top-1  items-center bg-black-background rounded-full
           hover:bg-button-hover transition duration-500 hover:rotate-90
           h-12 w-12 p-[0.95rem]
-          md:w-[3.25rem] md:h-[3.25rem] md:top-[0.375rem] md:p-[1.25rem] `}
+          md:w-[4.25rem] md:h-[4.25rem] md:top-[0.375rem] md:p-[1.25rem]
+          `}
       >
-        <img
-          src={isLaptop && isMenuOpen ? CloseIcon : BurgerIcon}
-          alt="Burger Icon"
-          className="object-contain w-full h-full"
-        />
+        {isMenuOpen ? (
+          <img
+            src={CloseIcon}
+            alt="Close Icon"
+            className="object-contain w-full h-full"
+          />
+        ) : isNewsRoute || isRoomReservationRoute ? (
+          <AddIcon style={{ color: "white", fontSize: "1.5rem" }} />
+        ) : (
+          <img
+            src={BurgerIcon}
+            alt="Burger Icon"
+            className="object-contain w-full h-full"
+          />
+        )}
       </button>
       {isMenuOpen && (
         <SmallMenuModal

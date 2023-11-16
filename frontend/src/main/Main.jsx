@@ -25,7 +25,7 @@ const Main = () => {
   const isLoginOrSignup =
     location.pathname === "/auth/login/identifier" || location.pathname === "/auth/login/password" || 
     location.pathname === "/auth/signup/identifier" || location.pathname === "/auth/signup/password" || 
-    location.pathname === "/auth/signup/user-details";
+    location.pathname === "/auth/signup/user-details" ;
 
   const isRoomReservation = location.pathname === "/room-reservation" || location.pathname === "/create/room-reservation";
 

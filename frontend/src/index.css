@@ -152,11 +152,6 @@
   z-index: 1; 
 }
 
-.news-item p, .news-item h2 {
-  position: absolute;
-  z-index: 2; 
-}
-
 /* ============ TEXT FIELD ERROR SHAKE HANDLER ============ */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }

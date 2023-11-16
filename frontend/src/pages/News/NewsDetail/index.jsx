@@ -32,7 +32,7 @@ const NewsDetail = () => {
             <h2 className="text-2xl font-bold mb-2">{newsItem.title}</h2>
             <div className="flex items-center justify-end">
               <p className="text-sm font-semibold text-gray-500">
-                {newsItem.author.name}
+                {newsItem.author}
               </p>
             </div>
           </div>
@@ -42,24 +42,39 @@ const NewsDetail = () => {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <img src={newsItem.backgroundImage} alt="news" />
-          <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
+          <NavigateBackButton
+            useFixed
+            useAnimation
+            top={1}
+            left={1}
+            width={16}
+            height={16}
+          />
+          <div className="flex h-[20rem]">
+            <img
+              src={newsItem.backgroundImage}
+              alt="news"
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <div
+            className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6
+            md:mx-16
+            lg:mx-48
+          "
+          >
             <p className="text-sm font-medium text-red-500 mb-2">
               {newsItem.date}
             </p>
             <h2 className="text-2xl font-bold mb-2">{newsItem.title}</h2>
           </div>
-          <div className="mx-4 py-10">
+          <div className="mx-4 py-10 
+            md:mx-14
+            lg:mx-32
+          "
+          >
             <p className="text-sm text-gray-600 mb-2">{newsItem.content}</p>
           </div>
-          <NavigateBackButton
-            useFixed
-            useAnimation
-            right={2}
-            bottom={2}
-            width={16}
-            height={16}
-          />
         </React.Fragment>
       )}
     </React.Fragment>
