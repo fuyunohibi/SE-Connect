@@ -5,6 +5,7 @@ from .booking import generate_random_string
 from typing import List
 from datetime import datetime
 import transaction, uuid, os
+from typing import Optional
 
 router = APIRouter()
 
@@ -12,22 +13,20 @@ root = init_db("news_data.fs")
 
 
 class NewsRequest(BaseModel):
-    newsID: str = None
+    newsID: int = None
     title: str
-    backgroundImage: str
-    images: List[str]
+    backgroundImage: Optional[str] = None
+    images: List[dict]
     content: str
     date: str = None
-    time: str = None
-    authorName: str
-    authorID: str
+    author: str
+    authorID:str
 
     def __init__(self, **data):
         super().__init__(**data)
         self.newsID = generate_random_string(10)
         current_time = datetime.now()
         self.date = current_time.strftime("%Y-%m-%d")
-        self.time = current_time.strftime("%H:%M:%S")
 
 
 UPLOAD_FOLDER = "files/newsImages"
@@ -49,8 +48,8 @@ async def request_booking(
     backgroundImage: UploadFile = File(...),
     images: List[UploadFile] = File(...),
     content: str = Form(...),
-    authorName: str = Form(...),
-    authorID: str = Form(...),
+    author: str = Form(...),
+    authorID: str = Form(...)
 ):
     try:
         bgImage = await backgroundImage.read()
@@ -58,23 +57,25 @@ async def request_booking(
         bg_file_path = save_uploaded_file(bgImage, unique_bg_filename, authorID)
 
         images_file_path = []
+        count = 1
         for image in images:
             image = await image.read()
             unique_filename = f"{uuid.uuid4()}.jpeg"
             file_path = save_uploaded_file(image, unique_filename, authorID)
-            images_file_path.append(file_path)
+            images_file_path.append({"ID":str(count),"image":file_path})
+            count = count + 1
 
         news_db = NewsRequest(
             title=title,
             backgroundImage=bg_file_path,
             images=images_file_path,
             content=content,
-            authorName=authorName,
+            author=author,
             authorID=authorID,
         )
         root[news_db.newsID] = news_db
         transaction.commit()
-        message = f"{news_db.title} has been posted!! at {news_db.date} {news_db.time} "
+        message = f"{news_db.title} has been posted!! at {news_db.date} "
         return {"message": message}
     except HTTPException as e:
         raise e
@@ -88,8 +89,5 @@ async def get_all_news():
     sorted_news_by_date = sorted(
         root.values(), key=lambda news: news.date, reverse=False
     )
-    sorted_news_by_date_and_time = sorted(
-        sorted_news_by_date, key=lambda news: news.time, reverse=False
-    )
 
-    return sorted_news_by_date_and_time
+    return sorted_news_by_date
