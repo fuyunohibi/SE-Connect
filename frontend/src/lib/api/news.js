@@ -34,6 +34,23 @@ class NewsService {
         throw error;
       });
   }
+
+
+  static getNewsByID(ID) {
+    const config = {
+      method: HTTP_METHODS.get,
+      url: `/news/${ID}`,
+    };
+
+    return request(config)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+  }
 }
 
 export default NewsService;

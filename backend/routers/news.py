@@ -16,6 +16,7 @@ class NewsRequest(BaseModel):
     newsID: int = None
     title: str
     backgroundImage: Optional[str] = None
+    profileImage: Optional[str] = None
     content: str
     date: str = None
     author: str
@@ -44,6 +45,7 @@ def save_uploaded_file(contents, filename, authorID):
 @router.post("/create/news", response_model=dict)
 async def request_booking(
     title: str = Form(...),
+    profileImage: str = Form(...),
     backgroundImage: UploadFile = File(...),
     content: str = Form(...),
     author: str = Form(...),
@@ -56,6 +58,7 @@ async def request_booking(
 
         news_db = NewsRequest(
             title=title,
+            profileImage=profileImage,
             backgroundImage=bg_file_path,
             content=content,
             author=author,
@@ -79,3 +82,10 @@ async def get_all_news():
     )
 
     return sorted_news_by_date
+  
+@router.get("/news/{ID}")
+async def getByID(ID : str):
+    for new in root.values():
+        if new.newsID == ID:
+            return new.dict()
+    return {"message":"ID not found"}

@@ -1,9 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { newsData } from "@/data";
+import news from "@/lib/api/news.js";
+import useUserStore from "@/store/useUserStore";
 
 const News = () => {
   const navigate = useNavigate();
+
+  const [newsData, setNewsData] = useState([]);
+
+  const {
+    userProfile
+  } = useUserStore();
+
+
+  const getAllNews = async () => {
+    try {
+      const response = await news.getAllNews();
+      console.log(response);
+
+      setNewsData(response);
+
+      // if (response && response.status === 200) {
+        
+      // }
+
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Updated News Data:", newsData);
+  }, [newsData]);
+
+
+  useEffect(() => {
+    getAllNews();
+  }, []);
+
+  
 
   return (
     <div className="max-w-2xl sm:max-w-full mx-auto p-4 pb-20 bg-mainBackground">
@@ -20,21 +55,26 @@ const News = () => {
           {newsData.length > 0 && (
             <React.Fragment>
               <div
-                key={newsData[0].newsID}
+                key={newsData[newsData.length - 1].newsID}
                 className="bg-white rounded-[3rem] pb-6 
-                  md:min-w-[25rem] 
+                  md:min-w-[25rem] md:max-h-[24rem]
                 "
-                onClick={() => navigate(`/news/${newsData[0].newsID}`)}
+                onClick={() =>
+                  navigate(`/news/${newsData[newsData.length - 1].newsID}`)
+                }
               >
                 <div
                   className="flex flex-col 
+                  h-[16rem]
                   md:min-w-[25rem] 
                 "
                 >
                   <img
-                    src={newsData[0].backgroundImage}
+                    src={`http://localhost:8000/${newsData[
+                      newsData.length - 1
+                    ].backgroundImage.replace(/\\/g, "/")}`}
                     alt="news"
-                    className="object-cover w-full rounded-[2rem]"
+                    className="object-cover w-full h-full rounded-[2rem]"
                   />
                 </div>
                 <div className="px-4 pt-3">
@@ -43,25 +83,27 @@ const News = () => {
                     lg:text-3xl
                     "
                   >
-                    {newsData[0].title}
+                    {newsData[newsData.length - 1].title}
                   </h2>
                 </div>
                 <div className="flex justify-between items-center px-4 pt-4">
                   <div className="flex justify-start items-center">
                     <div className="w-14 h-14 rounded-full mr-4">
-                      {/* <img
-                        src={newsData[0].author.profileImage}
+                      <img
+                        src={`http://localhost:8000/${newsData[
+                          newsData.length - 1
+                        ].profileImage.replace(/\\/g, "/")}`}
                         alt="Profile image"
                         className="w-full h-full object-cover rounded-full"
-                      /> */}
+                      />
                     </div>
                     <p className="text-md font-semibold text-gray-500">
-                      {newsData[0].author}
+                      {newsData[newsData.length - 1].author}
                     </p>
                   </div>
                   <div className="mr-3">
                     <p className="text-md font-semibold text-gray-500">
-                      {newsData[0].date}
+                      {newsData[newsData.length - 1].date}
                     </p>
                   </div>
                 </div>
@@ -90,7 +132,10 @@ const News = () => {
                     "
                     >
                       <img
-                        src={newsData[0].backgroundImage}
+                        src={`http://localhost:8000/${news.backgroundImage.replace(
+                          /\\/g,
+                          "/"
+                        )}`}
                         alt="news"
                         className="object-cover w-full h-full rounded-[1rem]
                           lg:rounded-[3rem]

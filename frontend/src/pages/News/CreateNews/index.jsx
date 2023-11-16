@@ -74,6 +74,7 @@ const CreateNews = ({ onClose }) => {
       newsData.append('content', content);
       newsData.append('author', `${userProfile.firstName} ${userProfile.lastName}`);
       newsData.append('authorID', userProfile.KmitlID.toString());
+      newsData.append('profileImage', userProfile.avatar);
 
       console.log("Type of KMITL ID:", typeof userProfile.KmitlID);
 
