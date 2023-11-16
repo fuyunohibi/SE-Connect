@@ -57,9 +57,11 @@ const RegisterUserDetails = () => {
   };
 
   const handleYearOfStudyChange = (event) => {
-    setYearOfStudy(event.target.value);
-    console.log(userProfile.yearOfStudy);
+    const selectedYear = parseInt(event.target.value, 10); // Convert to integer
+    setYearOfStudy(selectedYear);
+    console.log(selectedYear);
   };
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -212,7 +214,7 @@ const RegisterUserDetails = () => {
               id="year"
               autoFocus
               label="Year of Study"
-              value={userProfile.yearOfStudy}
+              value={userProfile.displayedYearOfStudy}
               onChange={handleYearOfStudyChange}
               onFocus={() => setYearOfStudyFocused(true)}
               onBlur={() => setYearOfStudyFocused(false)}
