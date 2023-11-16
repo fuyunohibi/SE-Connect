@@ -1,5 +1,5 @@
 import React from "react";
-
+import { SELogo, Student } from "@/assets/images/About";
 
 const cardData = [
   {
@@ -44,7 +44,7 @@ const About = () => {
                 Engineering?
               </p>
             </div>
-            <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
+            <div className="flip-card-back text-white w-full h-full rounded-3xl py-4">
               <p className="text-white font-normal">
                 Software engineering involves the end-to-end process of creating efficient and reliable software, requiring abstract thinking, logical reasoning, and the application of mathematics and computer science.
               </p>
@@ -59,8 +59,12 @@ const About = () => {
         "
         >
           <div className="flip-container">
-            <div className="flip-card-front"></div>
-            <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4"></div>
+            <div className="flip-card-front flex items-center">
+              <img src={SELogo} alt="SE Logo" className="w-20 h-20 rounded-md" />
+            </div>
+            <div className="flip-card-back text-white w-full h-full rounded-3xl py-4">
+              <img src={Student} alt="Student" className="rounded-md" />
+            </div>
           </div>
         </div>
 
@@ -78,7 +82,7 @@ const About = () => {
                 in Software Engineering
               </p>
             </div>
-            <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
+            <div className="flip-card-back text-white w-full h-full rounded-3xl py-4">
               <p className="text-black font-normal">
                 Software engineers, architects, and more!
               </p>
@@ -100,8 +104,8 @@ const About = () => {
                 Engineering?
               </p>
             </div>
-            <div className="flip-card-back bg-gray-400 w-full h-full rounded-3xl py-4">
-              <p className="text-black font-normal">
+            <div className="flip-card-back text-white w-full h-full rounded-3xl py-4">
+              <p className="text-white font-normal">
                 Engineer success with Software Engineering: innovate, lead, thrive.
               </p>
             </div>

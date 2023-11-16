@@ -11,6 +11,9 @@ const Footer = () => {
     console.log("toggleLoginModal");
     setIsLoginModalOpen(!isLoginModalOpen);
   };
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   return (
     <footer className="bg-neutral-gray pt-8 px-8 pb-6 rounded-3xl mx-4  text-black">
       {/* Logo or Brand Name */}
@@ -55,6 +58,8 @@ const Footer = () => {
             <a
               className="text-[0.8rem] font-normal -mt-[0.25rem] flex items-center hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
               href="https://www.facebook.com/KMITL.SIIE/?locale=th_TH"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Facebook
               <span className="ml-4">
@@ -65,7 +70,12 @@ const Footer = () => {
                 />
               </span>
             </a>
-            <li className="text-[0.8rem] font-normal flex items-center  hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out">
+            <a
+              className="text-[0.8rem] font-normal flex items-center  hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
+              href="https://www.instagram.com/se_kmitl/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Instagram
               <span className="ml-4">
                 <img
@@ -74,7 +84,7 @@ const Footer = () => {
                   alt="Arrow Up Icon"
                 />
               </span>
-            </li>
+            </a>
           </ul>
         </div>
 
@@ -82,21 +92,30 @@ const Footer = () => {
           <ul className="space-y-3">
             <li
               className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
-              onClick={() => navigate("/")}
+              onClick={() => {
+                navigate("/");
+                scrollToTop();
+              }}
             >
               Home
             </li>
             <li
               className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
-              onClick={() => navigate("/about")}
+              onClick={() => {
+                navigate("/about")
+                scrollToTop();
+              }}
             >
               About us
             </li>
             <li
               className="text-[0.8rem] font-normal hover:translate-x-1 hover:underline hover:-translate-y-1 transition duration-500 ease-in-out"
-              onClick={() => navigate("/program")}
+              onClick={() => {
+                navigate("/programs")
+                scrollToTop();
+              }}
             >
-              Program
+              Programs
             </li>
           </ul>
         </div>
