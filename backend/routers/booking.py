@@ -164,3 +164,13 @@ def cancel_room(requestID: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/reservation/latest/{firstname}/{lastname}")
+def get_user_latest_reservation(firstname:str, lastname:str):
+    arr = []
+    for room in root.values():
+        if(room.bookedBy["firstname"] == firstname and room.bookedBy["lastname"] == lastname):
+            arr.append(room)
+    if(len(arr) > 0):
+        return arr[len(arr) - 1].dict()
+    return {"message":"User has not booked any room yet"}
