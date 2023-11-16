@@ -34,6 +34,21 @@ class RoomBooking {
         throw error;
       });
   }
+  static getLatestUserReservation(firstname,lastname) {
+    const config = {
+      method: HTTP_METHODS.get,
+      url: `/reservation/latest/${firstname}/${lastname}`,
+    };
+
+    return request(config)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+  }
 }
 
 export default RoomBooking;

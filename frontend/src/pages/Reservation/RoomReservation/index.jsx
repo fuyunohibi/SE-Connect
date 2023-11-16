@@ -184,6 +184,9 @@ const DashboardContent = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [filterDate, setFilterDate] = useState("all"); // "all" as default value
 
+
+  const [latestReservationData, setLatestReservationData] = useState([]);
+
   const triggerShakeAnimation = () => {
     setShakePhoneNumber(true);
     setTimeout(() => {
@@ -193,6 +196,26 @@ const DashboardContent = () => {
       }
     }, 500);
   };
+
+  const handleFetchLatestUserReservation = () => {
+    RoomBooking.getLatestUserReservation(userProfile.firstName, userProfile.lastName)
+      .then((res) => {
+        console.log("Fetch successfully", res);
+        setLatestReservationData(res); // Assuming res contains the reservation data
+      })
+      .catch((err) => {
+        if (err.response && err.response.data) {
+          console.error("Detailed error message:", err.response.data.detail);
+        } else {
+          console.error("Error:", err);
+        }
+      });
+  };
+
+  useEffect(() =>{
+    handleFetchLatestUserReservation();
+  }, [])
+  
 
   const handleBooking = () => {
     setErrorMessage("");
@@ -342,15 +365,17 @@ const DashboardContent = () => {
           </div>
           <div className="flex w-full">
             <BookingDetailsCard
-              building="HM"
-              room="806"
-              date="15 Nov, 2023"
-              startTime="18:00"
-              endTime="21:00"
-              bookedBy="080-594-5005"
+              building={latestReservationData?.building}
+              room={latestReservationData?.ID}
+              date={dayjs(latestReservationData?.date).format("DD MMM, YYYY")}
+              startTime={latestReservationData?.availability?.startTime}
+              endTime={latestReservationData?.availability?.endTime}
+              bookedBy={latestReservationData?.bookedBy?.phoneNumber}
               showButton={false}
             />
           </div>
+
+
         </div>
       </div>
     );
@@ -707,9 +732,19 @@ const BookingDetailsCard = ({
   bookedBy = "",
   showButton = true,
   onClick,
-  errorMessage = ""
-  ,
+  errorMessage = "",
+  latestReservationData, // Add this prop
 }) => {
+  // Use latestReservationData to display the fetched data
+  const {
+    building: latestBuilding,
+    room: latestRoom,
+    date: latestDate,
+    startTime: latestStartTime,
+    endTime: latestEndTime,
+    bookedBy: latestBookedBy,
+  } = latestReservationData || {};
+
   return (
     <div className="flex flex-1 flex-col bg-[#fafafa] rounded-xl mb-40">
       <div className="flex flex-1 flex-col justify-start items-start bg-white px-5 py-6 rounded-xl rounded-b-[3rem]">
@@ -759,9 +794,44 @@ const BookingDetailsCard = ({
           <p className="text-center text-red-500">{errorMessage}</p>
         </div>
       ) : null}
+
+      {/* Display the fetched data */}
+      {latestReservationData ? (
+        <div className="bg-[#fafafa] px-5 py-6 rounded-xl">
+          <h1 className="font-semibold text-black">Latest Reservation Details</h1>
+          <hr className="w-full bg-gray-300 my-3" />
+          <div className="space-y-3">
+            <div>
+              <p className="font-semibold text-gray-500">Building & Room</p>
+              {latestBuilding === "" || latestRoom === "" ? null : (
+                <h1 className="font-semibold text-black">
+                  {latestBuilding} - {latestRoom}
+                </h1>
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-500">Date & Time</p>
+              {latestStartTime === "" || latestEndTime === "" || latestDate === "" ? null : (
+                <p className="font-semibold text-black">
+                  {latestStartTime} - {latestEndTime}, {latestDate}
+                </p>
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-500">Booked by</p>
+              {latestBookedBy === "" ? null : (
+                <div className="w-fit px-3 py-1 pb-2 bg-red-200 text-center text-primary rounded-[3rem] mt-2">
+                  {latestBookedBy}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
+
 
 const SideBar = () => {
   const navigate = useNavigate();

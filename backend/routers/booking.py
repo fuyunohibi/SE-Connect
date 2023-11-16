@@ -161,7 +161,7 @@ def cancel_room(requestID: str):
                 status_code=404, detail=f"Request ID: {requestID} not found"
             )
     except HTTPException as e:
-        raise e
+        raise e 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
