@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
@@ -17,11 +17,11 @@ import { KmitlDarkBackground } from '@/assets/images/Home';
 import TransitionBurgerIconButton from "@/assets/icons/Navbar/TransitionBurgerIconButton";
 import SELogo from '@/components/global/Logo';
 import useCheckScreenSize from '@/hooks/useCheckScreenSize';
-import { newsData } from "@/data";
 import { NavLink } from "react-router-dom";
 import useUserStore from "@/store/useUserStore";
 import { AuthContext } from "@/components/AuthProvider";
 import { DefaultUserProfile } from '@/assets/images/Auth';
+import news from "@/lib/api/news.js";
 
 const NavbarData = [
   {
@@ -87,7 +87,6 @@ const Home = () => {
     setIsMenuOpen(!isMenuOpen);
   }
   console.log("HELLO", userProfile.firstName);
-
 
   return (
     <section className="relative flex flex-1 flex-col h-screen p-4">
@@ -247,39 +246,90 @@ const SmallMenuModal = ({ onClick, onClose }) => {
   );
 };
 
+
 const LargeMenuModal = ({ onClick, onClose }) => {
   const navigate = useNavigate();
+  const [newsData, setNewsData] = useState(null);
+
+  const getThreeLatestNews = async () => {
+    try {
+      const response = await news.getThreeLatestNews();
+      console.log(response);
+      setNewsData(response);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
+
+  useEffect(() => {
+    getThreeLatestNews();
+  }, []);
+
+  useEffect(() => {
+    console.log("Updated News Data:", newsData);
+  }, [newsData]);
+
+  const renderEmptyNewsBlocks = () => {
+    return Array.from({ length: 3 }).map((_, index) => (
+      <div
+        key={`empty-${index}`}
+        className="relative flex flex-1 bg-[#f7f7f6] rounded-[1.75rem] aspect-w-16 aspect-h-9"
+      >
+        <button
+          className="absolute top-3 left-3 bg-button-black h-11 w-11 rounded-full p-4
+                hover:bg-button-hover hover:translate-x-1 hover:translate-y-1 transition duration-500 ease-in-out"
+          onClick={() => {
+            alert("Let's Write your first News");
+            navigate("/news")
+            onClose();
+          }}
+        >
+          <img
+            src={ArrowIcon}
+            alt="Arrow Icon"
+            className="object-contain w-full h-full"
+          />
+        </button>
+      </div>
+    ));
+  };
+
   return (
     <>
       <div className="hidden fixed slide-from-top md:grid grid-cols-3 gap-x-3 mx-5 left-0 right-0 mb-auto top-24 px-3 py-3 bg-white h-72 shadow-md rounded-[2rem]">
-        {newsData.map((news) => (
-          <div className="relative flex flex-1 bg-black-background rounded-[1.75rem] aspect-w-16 aspect-h-9">
-            <img
-              src={news.image}
-              alt="News Image"
-              className="object-cover w-full h-full rounded-[1.75rem]"
-            />
-            <button
-              className="absolute top-3 left-3 bg-button-black h-11 w-11 rounded-full p-4
-             hover:bg-button-hover hover:translate-x-1 hover:translate-y-1 transition duration-500 ease-in-out"
-              onClick={() => {
-                navigate(`/news/${news.id}`);
-                onClose();
-              }}
-            >
-              <img
-                src={ArrowIcon}
-                alt="Arrow Icon"
-                className="object-contain w-full h-full"
-              />
-            </button>
-          </div>
-        ))}
+        {newsData && newsData.length > 0
+          ? newsData.map((news) => (
+              <div
+                key={news.newsID}
+                className="relative flex flex-1 bg-black-background rounded-[1.75rem] aspect-w-16 aspect-h-9"
+              >
+                <img
+                  src={`http://localhost:8000/${news.backgroundImage.replace(
+                    /\\/g,
+                    "/"
+                  )}`}
+                  alt="News Image"
+                  className="object-cover w-full h-full rounded-[1.75rem]"
+                />
+                <button
+                  className="absolute top-3 left-3 bg-button-black h-11 w-11 rounded-full p-4
+                hover:bg-button-hover hover:translate-x-1 hover:translate-y-1 transition duration-500 ease-in-out"
+                  onClick={() => {
+                    navigate(`/news/${news.newsID}`);
+                    onClose();
+                  }}
+                >
+                  <img
+                    src={ArrowIcon}
+                    alt="Arrow Icon"
+                    className="object-contain w-full h-full"
+                  />
+                </button>
+              </div>
+            ))
+          : renderEmptyNewsBlocks()}
       </div>
-      <SmallMenuModal
-        onClick={onClick}
-        onClose={onClose}
-      />
+      <SmallMenuModal onClick={onClick} onClose={onClose} />
     </>
   );
 };

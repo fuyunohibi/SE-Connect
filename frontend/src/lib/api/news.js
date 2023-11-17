@@ -35,11 +35,26 @@ class NewsService {
       });
   }
 
-
   static getNewsByID(ID) {
     const config = {
       method: HTTP_METHODS.get,
       url: `/news/${ID}`,
+    };
+
+    return request(config)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+  }
+
+  static getThreeLatestNews() {
+    const config = {
+      method: HTTP_METHODS.get,
+      url: `/news/feed/latest-three`,
     };
 
     return request(config)

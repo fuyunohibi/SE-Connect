@@ -40,7 +40,13 @@ const NewsDetail = () => {
       {!isTablet ? (
         <React.Fragment>
           <NavigateBackButton top={1} left={1} />
-          <img src={newsData.backgroundImage} alt="news" />
+          <img
+            src={`http://localhost:8000/${newsData.backgroundImage.replace(
+              /\\/g,
+              "/"
+            )}`}
+            alt="news"
+          />
           <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
             <p className="text-sm font-medium text-red-500 mb-2">
               {newsData.date}
@@ -59,7 +65,6 @@ const NewsDetail = () => {
       ) : (
         <React.Fragment>
           <NavigateBackButton
-            useFixed
             useAnimation
             top={1}
             left={1}

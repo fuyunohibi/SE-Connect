@@ -4,8 +4,11 @@ import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import { PaperTexture } from "@/assets/images/News";
 import news from "@/lib/api/news.js";
 import useUserStore from "@/store/useUserStore";
+import { useQueryClient } from "react-query";
 
 const CreateNews = ({ onClose }) => {
+
+  const queryClient = useQueryClient();
 
   const {
     userProfile,
@@ -84,6 +87,7 @@ const CreateNews = ({ onClose }) => {
       news.createNews(newsData)
         .then((res) => {
           console.log(res);
+          queryClient.invalidateQueries("allNews");
           onClose();
         })
         .catch((err) => {

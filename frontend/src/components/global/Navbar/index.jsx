@@ -128,11 +128,13 @@ const Navbar = ({ onToggleModal }) => {
       `}
     >
       <button
-        className="absolute top-1 left-2 flex 
-          w-12 h-12 rounded-full 
-          md:top-[0.35rem] p-1
-          md:h-[4.3rem] md:w-[4.3rem]
-        "
+        className={`absolute top-1 left-2 p-1 flex  rounded-full 
+          ${
+            authState.isAuthenticated
+              ? "w-12 h-12 md:top-[0.35rem] md:h-[4.3rem] md:w-[4.3rem]"
+              : "h-[3rem] w-[5rem] left-[0rem] md:h-[3rem] md:w-[5rem] md:top-[1rem] md:left-[0.35rem]"
+          }
+        `}
         onClick={toggleLoginModal}
       >
         <img
@@ -143,9 +145,11 @@ const Navbar = ({ onToggleModal }) => {
                   "/"
                 )}`
               : SoftwareEngineeringLogo
-          } // TODO: ADD HERE
+          }
           alt="Logo"
-          className="object-cover w-full h-full rounded-full scale-110"
+          className={`rounded-full w-full h-full object-cover ${
+            authState.isAuthenticated ? "scale-110" : "scale-75  md:scale-90 "
+          }`}
         />
       </button>
       <button

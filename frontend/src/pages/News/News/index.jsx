@@ -1,45 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import news from "@/lib/api/news.js";
-import useUserStore from "@/store/useUserStore";
+import { useQuery, useQueryClient } from "react-query";
 
 const News = () => {
   const navigate = useNavigate();
-
-  const [newsData, setNewsData] = useState([]);
+  const queryClient = useQueryClient();
 
   const {
-    userProfile
-  } = useUserStore();
+    data: newsData,
+    isError,
+    error,
+    isFetching,
+  } = useQuery("allNews", news.getAllNews);
 
-
-  const getAllNews = async () => {
-    try {
-      const response = await news.getAllNews();
-      console.log(response);
-
-      setNewsData(response);
-
-      // if (response && response.status === 200) {
-        
-      // }
-
-    } catch (error) {
+  useEffect(() => {
+    if (isError) {
       console.error("Error fetching news:", error);
     }
+  }, [isError, error]);
+
+  const refetchNews = () => {
+    queryClient.invalidateQueries("allNews");
   };
 
   useEffect(() => {
-    console.log("Updated News Data:", newsData);
-  }, [newsData]);
-
-
-  useEffect(() => {
-    getAllNews();
-  }, []);
-
+    refetchNews();
+  }, []); 
   
-
   return (
     <div className="max-w-2xl sm:max-w-full mx-auto p-4 pb-20 bg-mainBackground">
       <React.Fragment>
@@ -52,7 +40,7 @@ const News = () => {
           className="flex flex-col 
           md:flex-row md:space-x-5"
         >
-          {newsData.length > 0 && (
+          {newsData && newsData.length > 0 ? (
             <React.Fragment>
               <div
                 key={newsData[newsData.length - 1].newsID}
@@ -66,7 +54,7 @@ const News = () => {
                 <div
                   className="flex flex-col 
                   h-[16rem]
-                  md:min-w-[25rem] 
+                  md:min-w-[25rem]
                 "
                 >
                   <img
@@ -86,7 +74,7 @@ const News = () => {
                     {newsData[newsData.length - 1].title}
                   </h2>
                 </div>
-                <div className="flex justify-between items-center px-4 pt-4">
+                <div className="flex justify-between items-center px-4 pt-4 md:pb-4  md:bg-white md:rounded-b-[3rem]">
                   <div className="flex justify-start items-center">
                     <div className="w-14 h-14 rounded-full mr-4">
                       <img
@@ -102,7 +90,7 @@ const News = () => {
                     </p>
                   </div>
                   <div className="mr-3">
-                    <p className="text-md font-semibold text-gray-500">
+                    <p className="text-sm font-semibold text-gray-500">
                       {newsData[newsData.length - 1].date}
                     </p>
                   </div>
@@ -115,7 +103,7 @@ const News = () => {
                 lg:w-[130%] 
               "
               >
-                {newsData.slice(1).map((news) => (
+                {newsData.slice(0, -1).map((news) => (
                   <div
                     key={news.newsID}
                     className="rounded-xl flex w-full justify-start items-center 
@@ -170,7 +158,13 @@ const News = () => {
                 ))}
               </div>
             </React.Fragment>
-          )}
+          ) : isFetching ? 
+            (
+              <p>Loading...</p>
+            ) : (
+              <p>No news available</p>
+            )
+          }
         </div>
       </React.Fragment>
     </div>

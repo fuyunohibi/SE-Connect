@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "@/components/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import CreateNews from "./CreateNews";
 import News from "./News";
 import { Navbar } from "@/components/global";
 
 const NewsPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isCreateNewsModalOpen, setIsCreateNewsModalOpen] = useState(false);
   const { authState } = useContext(AuthContext);
 
