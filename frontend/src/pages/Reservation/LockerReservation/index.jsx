@@ -45,7 +45,7 @@ const DashboardContent = () => {
     refetchLockerData();
   }, []); 
   
-  const handleToggleCreateLockerReservationModal = (lockerID) => {
+  const handleToggleCreateLockerReservationModal = (lockerID, status) => {
     console.log("received lockerID:", lockerID);
     setSelectedLockerID(lockerID);
     setIsModalOpen(!isModalOpen);
@@ -102,8 +102,7 @@ const LockerComponent = ({ lockerID, owner, lockerPassword, status, handleClick 
       className={`px-7 py-8 border-[1.75px] flex justify-center items-center border-white rounded-xl
         ${status === "unavailable" ? "bg-white text-black" : "bg-transparent text-white"}
       `}
-      onClick={() => handleClick(lockerID)}
-    >
+      onClick={status === "available" ? () => handleClick(lockerID) : null}    >
       <p className=" font-semibold text-md">{lockerID}</p>
     </button>
   );

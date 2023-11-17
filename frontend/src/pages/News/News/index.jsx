@@ -26,7 +26,11 @@ const News = () => {
 
   useEffect(() => {
     refetchNews();
-  }, []); 
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   return (
     <div className="max-w-2xl sm:max-w-full mx-auto p-4 pb-20 bg-mainBackground">
@@ -47,9 +51,10 @@ const News = () => {
                 className="bg-white rounded-[3rem] pb-6 
                   md:min-w-[25rem] md:max-h-[24rem]
                 "
-                onClick={() =>
+                onClick={() => {
                   navigate(`/news/${newsData[newsData.length - 1].newsID}`)
-                }
+                  scrollToTop();
+                }}
               >
                 <div
                   className="flex flex-col 
@@ -110,7 +115,10 @@ const News = () => {
                     lg:flex-col lg:bg-white lg:rounded-[3rem]
                     xl:min-h-[20rem]
                     "
-                    onClick={() => navigate(`/news/${news.newsID}`)}
+                    onClick={() => {
+                      navigate(`/news/${news.newsID}`)
+                      scrollToTop();
+                    }}
                   >
                     <div
                       className="w-24 h-[5rem] rounded-xl

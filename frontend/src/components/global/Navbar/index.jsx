@@ -114,7 +114,6 @@ const Navbar = ({ onToggleModal }) => {
     }
   };
 
-
   return (
     <nav
       className={`fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
@@ -189,6 +188,9 @@ const Navbar = ({ onToggleModal }) => {
 };
 
 const SmallMenuModal = ({ onClick, onClose, navbarData }) => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   return (
     <div
       className="fixed slide-from-bottom mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[2rem] shadow-md
@@ -207,7 +209,10 @@ const SmallMenuModal = ({ onClick, onClose, navbarData }) => {
               id={item.id}
               to={item.link}
               className="flex flex-col justify-center items-center  rounded-full w-12 h-12"
-              onClick={onClose}
+              onClick={() => {
+                onClose(); // Close the menu
+                scrollToTop(); // Scroll to the top
+              }}
             >
               <p
                 className={"text-black font-medium text-center hover:underline"}
