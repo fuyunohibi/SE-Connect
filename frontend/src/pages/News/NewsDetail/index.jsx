@@ -40,13 +40,16 @@ const NewsDetail = () => {
       {!isTablet ? (
         <React.Fragment>
           <NavigateBackButton top={1} left={1} />
-          <img
-            src={`http://localhost:8000/${newsData.backgroundImage.replace(
-              /\\/g,
-              "/"
-            )}`}
-            alt="news"
-          />
+          <div className="h-[16rem]">
+            <img
+              src={`http://localhost:8000/${newsData.backgroundImage.replace(
+                /\\/g,
+                "/"
+              )}`}
+              alt="news"
+              className="object-cover w-full h-full"
+            />
+          </div>
           <div className="bg-white drop-shadow-xl rounded-3xl px-10 py-10 -mt-16 text-start mx-6">
             <p className="text-sm font-medium text-red-500 mb-2">
               {newsData.date}
@@ -71,7 +74,7 @@ const NewsDetail = () => {
             width={16}
             height={16}
           />
-          <div className="flex h-[20rem]">
+          <div className="sm:h-[16rem] md:h-[16rem]">
             <img
               src={`http://localhost:8000/${newsData.backgroundImage.replace(
                 /\\/g,

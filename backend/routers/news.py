@@ -76,7 +76,7 @@ async def request_booking(
 
 @router.get("/news/feed", response_model=List[NewsRequest])
 async def get_all_news():
-    # Sort news first by date, then by time
+    # NOTE: Sort news first by date, then by time
     sorted_news_by_date = sorted(
         root.values(), key=lambda news: news.date, reverse=False
     )
@@ -89,3 +89,16 @@ async def getByID(ID : str):
         if new.newsID == ID:
             return new.dict()
     return {"message":"ID not found"}
+  
+  
+@router.get("/news/feed/latest-three", response_model=List[NewsRequest])
+async def get_latest_news():
+    # NOTE: ort news by date in descending order and take the first three
+    sorted_news = sorted(
+        root.values(), 
+        key=lambda news: datetime.strptime(news.date, "%Y-%m-%d"), 
+        reverse=True
+    )
+    latest_three_news = sorted_news[:3]
+    return latest_three_news
+
