@@ -16,3 +16,5 @@ export { default as Register             } from './Auth/Register'
 export { default as RegisterPassword     } from './Auth/Register/RegisterPassword'
 export { default as RegisterUserDetails  } from './Auth/Register/RegisterUserDetails'
 export { default as CreateNews           } from './News/CreateNews'
+export { default as LockerReservation    } from './Reservation/LockerReservation'
+export { default as CreateLockerReservation } from "./Reservation/LockerReservation/CreateLockerReservation";

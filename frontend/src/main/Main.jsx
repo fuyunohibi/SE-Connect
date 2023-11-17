@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navbar, Footer } from '@/components/global';
-import { HomePage, IntroPage, AboutPage, InsiderPage, AdmissionPage, ProgramPage, ConnectionPage, EventPage, ContactPage, NewsPage, NewsDetail, Login, LoginPassword, Register, RegisterPassword, RegisterUserDetails, RoomReservation } from '@/pages';
+import { HomePage, IntroPage, AboutPage, InsiderPage, AdmissionPage, ProgramPage, ConnectionPage, EventPage, ContactPage, NewsPage, NewsDetail, Login, LoginPassword, Register, RegisterPassword, RegisterUserDetails, RoomReservation, LockerReservation } from '@/pages';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import useUserStore from "@/store/useUserStore";
@@ -28,6 +28,7 @@ const Main = () => {
     location.pathname === "/auth/signup/user-details" ;
 
   const isRoomReservation = location.pathname === "/room-reservation" || location.pathname === "/create/room-reservation";
+  const isLockerReservation = location.pathname === "/locker-reservation" || location.pathname === "/create/locker-reservation";
 
   return (
     <main id="main-container" className="mb-32 md:mb-0">
@@ -63,6 +64,22 @@ const Main = () => {
           element={
             <ProtectedRoute>
               <RoomReservation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/locker-reservation"
+          element={
+            <ProtectedRoute>
+              <LockerReservation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create/locker-reservation"
+          element={
+            <ProtectedRoute>
+              <LockerReservation />
             </ProtectedRoute>
           }
         />

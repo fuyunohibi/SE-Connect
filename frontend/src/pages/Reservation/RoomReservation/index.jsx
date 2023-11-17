@@ -36,7 +36,7 @@ const RoomReservationSidebarData = [
 const RoomReservation = () => {
   const isTablet = useCheckScreenSize("tablet");
   return (
-    <div className=" top-0 left-0 right-0 fixed flex flex-col">
+    <div className="top-0 left-0 right-0 fixed flex flex-col">
       <div className="flex flex-row">
         {isTablet ? <SideBar /> : null}
         <div className="w-full">
@@ -315,13 +315,13 @@ const DashboardContent = () => {
           uniqueDates={[...uniqueDates]}
         />
         <div
-          className="flex flex-col space-y-6 items-start h-full w-full
+          className="flex flex-col space-y-6 items-start h-full w-full 
             md:flex-row md:justify-between md:space-x-6 md:space-y-0 
           "
         >
           <div
-            className="flex flex-col space-y-6 items-start w-full h-[39rem] overflow-y-scroll
-              no-scrollbar
+            className="flex flex-col space-y-6 items-start w-full h-[39rem] overflow-y-scroll 
+              no-scrollbar 
             "
             onScroll={handleScroll}
           >
@@ -446,7 +446,7 @@ const ReservationCard = ({
   reservationStatus,
 }) => {
   return (
-    <div className="relative flex justify-between px-8 py-6 rounded-xl bg-white w-full">
+    <div className="relative flex justify-between px-8 py-6 rounded-xl bg-white w-full ">
       <div>
         <p className="text-gray-500 font-semibold">Name</p>
         <div className="flex justify-between space-x-4 mt-4">

@@ -57,12 +57,6 @@ const NavbarData = [
     icon: NewsIcon,
     link: "/news",
   },
-  {
-    id: 7,
-    name: "Events",
-    icon: HomeIcon,
-    link: "/events",
-  },
 ];
 
 const Navbar = ({ onToggleModal }) => {
@@ -91,8 +85,14 @@ const Navbar = ({ onToggleModal }) => {
     ...(authState.isAuthenticated
       ? [
           {
+            id: 7,
+            name: "Locker Reservation",
+            icon: ReservationIcon,
+            link: "/locker-reservation",
+          },
+          {
             id: 8,
-            name: "Reservation",
+            name: "Room Reservation",
             icon: ReservationIcon,
             link: "/room-reservation",
           },
