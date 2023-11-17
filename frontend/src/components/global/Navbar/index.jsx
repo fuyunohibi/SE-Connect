@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SoftwareEngineeringLogo from "@/assets/icons/Logo/SoftwareEngineeringLogo.png";
 import {
@@ -62,8 +62,12 @@ const NavbarData = [
 const Navbar = ({ onToggleModal }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isTablet = useCheckScreenSize("tablet");
   const isNewsRoute = location.pathname.startsWith("/news");
   const isRoomReservationRoute = location.pathname.startsWith("/room-reservation");
+  const isLockerReservationRoute = location.pathname.startsWith("/locker-reservation");
+  const isNormalRoute = !isNewsRoute && !isRoomReservationRoute && !isLockerReservationRoute;
+
 
   const { authState } = useContext(AuthContext);
   const { userProfile } = useUserStore();
@@ -117,13 +121,16 @@ const Navbar = ({ onToggleModal }) => {
   return (
     <nav
       className={`fixed mx-12 bottom-9 left-0 right-0 bg-white px-3 py-2 text-white rounded-[3rem] shadow-md
-      z-50 h-14
-      sm:mx-32 
-      md:mx-56
-      md:h-20
-      lg:mx-80
-      xl:mx-96
-      ${isNewsRoute ? "md:block" : "md:hidden"}
+        z-50 h-14
+        sm:mx-32 
+        md:mx-56
+        md:h-20
+        lg:mx-80
+        xl:mx-96
+      ${isNewsRoute ? "md:block" : ""}
+      ${isLockerReservationRoute ? "md:block lg:block xl:block" : ""}
+      ${isTablet ? "block" : ""}
+      ${isNormalRoute ? "md:hidden lg:hidden xl:hidden" : ""}
       `}
     >
       <button
