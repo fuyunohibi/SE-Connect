@@ -119,7 +119,7 @@ const CreateNews = ({ onClose }) => {
         onClick={handleModalContentClick}
       >
         <div className="relative w-full">
-          <div className="news-item h-[15rem] w-[100%] rounded-t-[3rem] cursor-pointer">
+          <div className="news-item h-[15rem] w-[100%] rounded-[3rem] cursor-pointer">
             <img
               src={backgroundImageUrl}
               className="object-cover w-full h-full rounded-[3rem]"
